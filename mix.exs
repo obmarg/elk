@@ -19,6 +19,7 @@ defmodule Pyexq.Mixfile do
   # To specify particular versions, regardless of the tag, do:
   # { :barbat, "~> 0.1", github: "elixir-lang/barbat" }
   defp deps do
-    [ {:erlport, github: "hdima/erlport"} ]
+    [ {:erlport, github: "hdima/erlport"},
+      {:poolboy, github: "devinus/poolboy", tag: "1.0.0"} ]
   end
 end

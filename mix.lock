@@ -1,1 +1,2 @@
-[ "erlport": {:git, "git://github.com/hdima/erlport.git", "e7efadc22190aa51392cf89310c16ca6b2e4e4e8", []} ]
+[ "erlport": {:git, "git://github.com/hdima/erlport.git", "e7efadc22190aa51392cf89310c16ca6b2e4e4e8", []},
+  "poolboy": {:git, "git://github.com/devinus/poolboy.git", "91b68de43d49bcccf2631016febda70b20d7aa75", [tag: "1.0.0"]} ]
