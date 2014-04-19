@@ -23,5 +23,4 @@ defmodule Pyexq.Supervisor do
     # for other strategies and supported options
     supervise(children, strategy: :one_for_one)
   end
-
 end
