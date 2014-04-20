@@ -25,12 +25,21 @@ defmodule Pyexq.LeaseHolder do
     {:ok, state}
   end
 
-  def handle_info(msg, {worker_pid, release_fn}) do
-    # TODO: Handle errors
+  def handle_info(msg, state = {worker_pid, release_fn}) do
     case msg do
-      { :DOWN, _, :process, ^worker_pid, _reason } ->
-        release_fn.()
+      { :DOWN, _, :process, ^worker_pid, reason } when reason == :normal ->
+        release_fn.(:done)
         {:stop, 'child process finished', nil}
+
+      { :DOWN, _, :process, ^worker_pid, reason } ->
+        release_fn.(:error)
+        {:stop, 'child process down (but not ended normally)', nil}
+
+      { :EXIT, ^worker_pid, reason } ->
+        release_fn.(:error)
+        {:stop, 'child process exited', nil}
+
+      true -> {:noreply, state}
     end
   end
 
