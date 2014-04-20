@@ -16,6 +16,7 @@ defmodule Pyexq.Supervisor do
     children = [
       # Define workers and child supervisors to be supervised
       # worker(Pyexq.Worker, [])
+      worker(Pyexq.TokenHandler, []),
       :poolboy.child_spec(:python_pool, pool_options, [])
     ]
 
