@@ -17,6 +17,7 @@ defmodule Pyexq.Supervisor do
     ]
 
     children = [
+      func_supervisor(:delete_sup, &Pyexq.GoogleAPI.delete_task/1, restart: :transient),
       supervisor(Pyexq.LeaseHolderSupervisor, []),
 
       :poolboy.child_spec(:python_pool, pool_options, []),
@@ -27,5 +28,9 @@ defmodule Pyexq.Supervisor do
     # See http://elixir-lang.org/docs/stable/Supervisor.Behaviour.html
     # for other strategies and supported options
     supervise(children, strategy: :one_for_one)
+  end
+
+  defp func_supervisor(id, function, args) do
+    supervisor(Pyexq.FunctionSupervisor, [id, function, args], id: id)
   end
 end
