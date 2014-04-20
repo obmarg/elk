@@ -69,7 +69,6 @@ defmodule Pyexq.TokenHandler do
 
   defp do_fetch(request) do
     alias HTTPotion.Response
-    HTTPotion.start
 
     headers = [{'Content-Type', 'application/x-www-form-urlencoded'}]
 
