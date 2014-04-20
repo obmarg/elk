@@ -14,15 +14,20 @@ defmodule Pyexq.GoogleAPI do
     get('') |> process_response
   end
 
-  def lease_task() do
-    {:ok, input} = JSON.encode [{:leaseSecs, 60}, {:numTasks, 1}]
-    data = post("/lease", input) |> process_response
-    # TODO: Check 'kind' is taskqueue#tasks
-    #       Extract items as tasks
+  def lease_tasks(n_tasks) do
+    query_string = URI.encode_query [{:leaseSecs, 300}, {:numTasks, n_tasks}]
+    data = post("/lease?#{query_string}", '') |> process_response
+    # TODO: Could check 'kind' is taskqueue#tasks
+    Dict.get(data, "items")
   end
 
-  def delete_task(id) do
-    delete("/delete/#{id}") |> process_response
+  def release_lease(task_id) do
+    # TODO: Assuming this doesn't work...
+    put("/#{task_id}", [{:newLeaseSeconds, 0}]) |> process_response
+  end
+
+  def delete_task(task_id) do
+    delete("/#{task_id}") |> process_response
   end
 
   ##
@@ -55,7 +60,7 @@ defmodule Pyexq.GoogleAPI do
       when status in 200..299 ->
         body
       Response[body: body, status_code: status, headers: _headers ] ->
-        throw "Remote error #{status} - #{body}"
+        throw "Remote error #{status} - #{inspect body}"
     end
   end
 end
