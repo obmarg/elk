@@ -1,5 +1,5 @@
 import importlib
-from StringIO import StringIO
+from cStringIO import StringIO
 
 def get_application(module_name, app_name):
     '''
@@ -12,7 +12,7 @@ def get_application(module_name, app_name):
     return getattr(module, app_name)
 
 
-def call_application(module_name, app_name, environ):
+def call_application(module_name, app_name, environ, input_str):
     '''
     Wrapper around calling a WSGI application
 
@@ -20,8 +20,9 @@ def call_application(module_name, app_name, environ):
     :param app_name:    The name of the application within the module.
     :param environ:     A list of tuples, representing the pairs of the environ
                         dict.
+    :param input_str:   The string to use for an input stream.
 
-    :returns:           A tuple of (status, headers, body)
+    :returns:           A tuple of (status, headers, body, error_stream)
     '''
     body = []
     status_headers = [None, None]
@@ -30,8 +31,8 @@ def call_application(module_name, app_name, environ):
         status_headers[:] = [status, headers]
 
     environ = dict(environ)
-    environ['wsgi.input'] = StringIO('')
-    environ['wsgi.error'] = StringIO('')
+    environ['wsgi.input'] = StringIO(input_str)
+    environ['wsgi.error'] = err_stream = StringIO()
 
     app = get_application(module_name, app_name)
     app_iter = app(environ, start_response)
@@ -43,7 +44,8 @@ def call_application(module_name, app_name, environ):
         if hasattr(app_iter, 'close'):
             app_iter.close()
 
-    return status_headers[0], status_headers[1], ''.join(body)
+    return (status_headers[0], status_headers[1], ''.join(body),
+            err_stream.getvalue())
 
 
 def _erl_pairs_to_dict(pairs):
