@@ -24,7 +24,7 @@ defmodule Pyexq.WSGI do
   def call_app(module_name, app_name, input) do
     :poolboy.transaction :python_pool, fn (worker) ->
       params = [ module_name, app_name, @global_wsgi_params, input ]
-      :python.call worker, :wsgi_wrapper, :"call_application", params
+      :python.call worker, :wsgi_wrapper, :call_application, params
     end
 
     # TODO: Need to do something for wsgi.input & wsgi.errors

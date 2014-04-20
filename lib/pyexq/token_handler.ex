@@ -38,7 +38,7 @@ defmodule Pyexq.TokenHandler do
   end
 
   @client_id ""
-  @scope ""
+  @scope "https://www.googleapis.com/auth/taskqueue.consumer"
   @duration_secs 60 * 60
 
   ##
@@ -50,7 +50,7 @@ defmodule Pyexq.TokenHandler do
 
     case do_fetch(request) do
       {:ok, body} -> 
-        data = JSON.decode(body)
+        {:ok, data} = JSON.decode(body)
         {megasecs, secs, millisecs} = :os.timestamp()
         expiry = Dict.get(data, "expires_in")
         {Dict.get(data, "access_token"), {megasecs, secs+expiry, millisecs}}
@@ -59,17 +59,21 @@ defmodule Pyexq.TokenHandler do
     end
   end
 
-  defp build_jwt() do
+  def build_jwt() do
     {:ok, python_pid} = :python.start()
     params = [@client_id, @scope, @duration_secs]
-    signed_jwt = :python.call(python_pid, :auth, :call_application, params)
+    signed_jwt = :python.call(python_pid, :auth, :get_signed_jwt, params)
     :python.stop(python_pid)
+    signed_jwt
   end
 
   defp do_fetch(request) do
     alias HTTPotion.Response
+    HTTPotion.start
 
-    case HTTPotion.post(@token_url, request) do
+    headers = [{'Content-Type', 'application/x-www-form-urlencoded'}]
+
+    case HTTPotion.post(@token_url, request, headers) do
       Response[body: body, status_code: status, headers: _headers ]
       when status in 200..299 ->
         {:ok, body}
@@ -79,7 +83,7 @@ defmodule Pyexq.TokenHandler do
   end
 
   defp has_expired(expiry) do
-    expiry > :os.timestamp()
+    expiry <= :os.timestamp()
   end
 
 end

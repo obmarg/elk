@@ -21,6 +21,8 @@ defmodule Pyexq.Mixfile do
   defp deps do
     [ {:erlport, github: "hdima/erlport"},
       {:poolboy, github: "devinus/poolboy", tag: "1.0.0"}, 
-      {:amrita, "~>0.2", github: "josephwilk/amrita"}, ]
+      {:amrita, "~>0.2", github: "josephwilk/amrita"}, 
+      {:httpotion, github: "myfreeweb/httpotion" }, 
+      {:json, github: "cblage/elixir-json"} ]
   end
 end
