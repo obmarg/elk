@@ -27,6 +27,7 @@ defmodule Pyexq.Leaser do
     end
   end
 
+end
   # TODO: Could refactor to a kinda-state machine:
   # States: - Task Queue Empty (when requests return no results).
   #           - Maintain a list of requesting pids.
