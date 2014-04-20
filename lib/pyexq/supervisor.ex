@@ -5,6 +5,7 @@ defmodule Pyexq.Supervisor do
     :supervisor.start_link(__MODULE__, [])
   end
 
+
   def init([]) do
     HTTPotion.start
 
@@ -16,10 +17,11 @@ defmodule Pyexq.Supervisor do
     ]
 
     children = [
-      # Define workers and child supervisors to be supervised
-      # worker(Pyexq.Worker, [])
+      supervisor(Pyexq.LeaseHolderSupervisor, []),
+
+      :poolboy.child_spec(:python_pool, pool_options, []),
+
       worker(Pyexq.TokenHandler, []),
-      :poolboy.child_spec(:python_pool, pool_options, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/Supervisor.Behaviour.html
