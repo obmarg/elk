@@ -5,15 +5,7 @@ defmodule Pyexq.Supervisor do
     :supervisor.start_link(__MODULE__, [])
   end
 
-
   def init([]) do
-    pool_options = [
-      name: {:local, :python_pool},
-      worker_module: :python,
-      size: 3,
-      max_overflow: 4
-    ]
-
     children = [
       func_supervisor(:delete_sup, &Pyexq.GoogleAPI.delete_task/1),
       func_supervisor(:release_sup, &Pyexq.GoogleAPI.release_lease/1),
@@ -21,19 +13,39 @@ defmodule Pyexq.Supervisor do
       worker(Pyexq.TokenHandler, []),
       worker(Pyexq.Leaser, []),
 
-      worker(Pyexq.Worker, [], id: 'worker1'),
-      worker(Pyexq.Worker, [], id: 'worker2'),
-      worker(Pyexq.Worker, [], id: 'worker3'),
-      worker(Pyexq.Worker, [], id: 'worker4'),
-      :poolboy.child_spec(:python_pool, pool_options, []),
+      supervisor(Pyexq.WorkerSupervisor, [], id: 'worker-sup1')
     ]
-
-    # See http://elixir-lang.org/docs/stable/Supervisor.Behaviour.html
-    # for other strategies and supported options
     supervise(children, strategy: :one_for_one)
   end
 
   defp func_supervisor(id, function) do
     supervisor(Pyexq.FunctionSupervisor, [id, function, [{:restart, :transient}]], id: id)
+  end
+end
+
+
+defmodule Pyexq.WorkerSupervisor do
+  @moduledoc """
+  A supervisor that monitors a worker pair.
+
+  A worker pair is made up of a python process & it's corresponding Worker.
+  When either of the processes fail, the other will also be restarted.
+  """
+
+  use Supervisor.Behaviour
+
+  def start_link do
+    result = {:ok, sup} = :supervisor.start_link(__MODULE__, [])
+    start_workers(sup)
+    result
+  end
+
+  def init(_) do
+    supervise([], strategy: :one_for_all)
+  end
+
+  defp start_workers(sup) do
+    {:ok, python} = :supervisor.start_child(sup, worker(:python, []))
+    :supervisor.start_child(sup, worker(Pyexq.Worker, [python]))
   end
 end

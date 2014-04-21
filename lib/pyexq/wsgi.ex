@@ -21,13 +21,12 @@ defmodule Pyexq.WSGI do
                        # These ones will need moved:
                        {"PATH_INFO", "/"}]
 
-  def call_app(module_name, app_name, input) do
-    :poolboy.transaction :python_pool, fn (worker) ->
-      params = [ module_name, app_name, @global_wsgi_params, input ]
-      :python.call worker, :wsgi_wrapper, :call_application, params
-    end
+  def call_app(py_worker, module_name, app_name, input) do
+    params = [ module_name, app_name, @global_wsgi_params, input ]
+    :python.call py_worker, :wsgi_wrapper, :call_application, params
 
     # TODO: Need to do something for wsgi.input & wsgi.errors
+    # TODO: also need some timeout stuff & tests.
   end
 
 end
