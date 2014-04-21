@@ -18,20 +18,33 @@ defmodule Elk.GoogleAPI do
 
   def lease_tasks(n_tasks) do
     Lager.info "Requesting #{n_tasks} leases"
-    query_string = URI.encode_query [{:leaseSecs, 60}, {:numTasks, n_tasks}]
+    query_string = URI.encode_query [{:leaseSecs, 500}, {:numTasks, n_tasks}]
 
     post("/lease?#{query_string}", "")
     |> process_response
     |> Dict.get("items")
   end
 
-  def release_lease(task_id) do
-    # TODO: Assuming this doesn't work...
+  def release_lease(task_info) do
+    task_id = Dict.get(task_info, "id")
     Lager.info "Releasing lease for #{task_id}"
-    put("/#{task_id}", [{:newLeaseSeconds, 0}]) |> process_response
+
+    query_string = URI.encode_query [{:newLeaseSeconds, 0}]
+
+    # This is stupid, but apparently the API doesn't like it's own data,
+    # so we have to replace queueName with the short queue name
+    # (as opposed to the full path the lease API sends us)
+    {:ok, json_data} = task_info
+    |> Dict.put("queueName", "pulltest")
+    |> JSON.encode
+
+    "/#{task_id}?#{query_string}"
+    |> post(json_data, [{"Content-Type", "application/json"}]) 
+    |> process_response
   end
 
-  def delete_task(task_id) do
+  def delete_task(task_info) do
+    task_id = Dict.get(task_info, "task_id")
     Lager.info "Deleting task #{task_id}"
 
     delete("/#{task_id}")

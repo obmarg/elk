@@ -22,12 +22,8 @@ defmodule Elk.Leaser do
   def handle_call(:get_lease, _from, state) do
     tasks = Elk.GoogleAPI.lease_tasks(1)
     case tasks do
-      [task] -> 
-        Lager.info "Lease Taken"
-        Lager.debug inspect task
-        {:reply, Dict.get(task, "id"), state}
-      nil -> 
-        {:reply, nil, state}
+      [task] -> {:reply, task, state}
+      nil -> {:reply, nil, state}
     end
   end
 
