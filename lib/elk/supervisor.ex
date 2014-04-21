@@ -1,4 +1,4 @@
-defmodule Pyexq.Supervisor do
+defmodule Elk.Supervisor do
   use Supervisor.Behaviour
 
   def start_link do
@@ -7,24 +7,24 @@ defmodule Pyexq.Supervisor do
 
   def init([]) do
     children = [
-      func_supervisor(:delete_sup, &Pyexq.GoogleAPI.delete_task/1),
-      func_supervisor(:release_sup, &Pyexq.GoogleAPI.release_lease/1),
+      func_supervisor(:delete_sup, &Elk.GoogleAPI.delete_task/1),
+      func_supervisor(:release_sup, &Elk.GoogleAPI.release_lease/1),
 
-      worker(Pyexq.TokenHandler, []),
-      worker(Pyexq.Leaser, []),
+      worker(Elk.TokenHandler, []),
+      worker(Elk.Leaser, []),
 
-      supervisor(Pyexq.WorkerSupervisor, [], id: 'worker-sup1')
+      supervisor(Elk.WorkerSupervisor, [], id: 'worker-sup1')
     ]
     supervise(children, strategy: :one_for_one)
   end
 
   defp func_supervisor(id, function) do
-    supervisor(Pyexq.FunctionSupervisor, [id, function, [{:restart, :transient}]], id: id)
+    supervisor(Elk.FunctionSupervisor, [id, function, [{:restart, :transient}]], id: id)
   end
 end
 
 
-defmodule Pyexq.WorkerSupervisor do
+defmodule Elk.WorkerSupervisor do
   @moduledoc """
   A supervisor that monitors a worker pair.
 
@@ -46,6 +46,6 @@ defmodule Pyexq.WorkerSupervisor do
 
   defp start_workers(sup) do
     {:ok, python} = :supervisor.start_child(sup, worker(:python, []))
-    :supervisor.start_child(sup, worker(Pyexq.Worker, [python]))
+    :supervisor.start_child(sup, worker(Elk.Worker, [python]))
   end
 end

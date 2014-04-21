@@ -1,7 +1,7 @@
-defmodule Pyexq.FunctionSupervisor do
+defmodule Elk.FunctionSupervisor do
   @moduledoc """
   A simple_for_one supervisor for supervising the running of a specific
-  function (via Pyexq.FunctionTask)
+  function (via Elk.FunctionTask)
 
   The intention is for other processes to add tasks to this supervisor by
   calling start_child with the appropriate name.
@@ -25,7 +25,7 @@ defmodule Pyexq.FunctionSupervisor do
 
   def init({worker_fn, opts}) do
     children = [
-      worker(Pyexq.FunctionProc, [worker_fn], opts)
+      worker(Elk.FunctionProc, [worker_fn], opts)
     ]
     supervise(children, strategy: :simple_one_for_one)
   end

@@ -1,4 +1,4 @@
-defmodule Pyexq.FunctionProc do
+defmodule Elk.FunctionProc do
   @moduledoc """
   This module implements a process that will run a function then quit.
 

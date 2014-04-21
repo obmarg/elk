@@ -1,4 +1,4 @@
-defmodule Pyexq.TokenHandler do
+defmodule Elk.TokenHandler do
   @moduledoc """
   A singleton process that stores oauth tokens and handles requesting new ones.
   """

@@ -1,8 +1,8 @@
-defmodule Pyexq.Mixfile do
+defmodule Elk.Mixfile do
   use Mix.Project
 
   def project do
-    [ app: :pyexq,
+    [ app: :elk,
       version: "0.0.1",
       elixir: "~> 0.12.5",
       deps: deps ]
@@ -11,7 +11,7 @@ defmodule Pyexq.Mixfile do
   # Configuration for the OTP application
   def application do
     [ applications: [ :exlager, :httpotion ],
-      mod: { Pyexq, [] } ]
+      mod: { Elk, [] } ]
   end
 
   # Returns the list of dependencies in the format:

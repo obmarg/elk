@@ -2,7 +2,7 @@ defmodule WsgiTest do
   use ExUnit.Case
 
   defp call_app(fn_name, input // "") do
-    Pyexq.WSGI.call_app("wsgi_wrapper.test", fn_name, input)
+    Elk.WSGI.call_app("wsgi_wrapper.test", fn_name, input)
   end
 
   test "call_app handles simple 200" do

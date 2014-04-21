@@ -1,4 +1,4 @@
-defmodule Pyexq.GoogleAPI do
+defmodule Elk.GoogleAPI do
   @moduledoc """
   This module provides a wrapper around the google APIs using
   HTTPotion.  It will request tokens from the TokenHandler.
@@ -43,9 +43,9 @@ defmodule Pyexq.GoogleAPI do
   end
 
   def process_request_headers(headers) do
-    access_token = Pyexq.TokenHandler.get_token()
+    access_token = Elk.TokenHandler.get_token()
     headers 
-    |> Dict.put("User-Agent", "pyexq")
+    |> Dict.put("User-Agent", "Elk")
     |> Dict.put("Authorization", "Bearer #{access_token}")
   end
 

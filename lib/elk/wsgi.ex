@@ -1,4 +1,4 @@
-defmodule Pyexq.WSGI do
+defmodule Elk.WSGI do
   @moduledoc '''
   API around python processes
   '''
@@ -10,7 +10,7 @@ defmodule Pyexq.WSGI do
                        {"wsgi.multithread", false},
                        {"wsgi.multiprocess", true},
                        {"wsgi.run_once", false},
-                       {"SERVER_SOFTWARE", "Pyexq"},
+                       {"SERVER_SOFTWARE", "Elk"},
                        {"SERVER_NAME", "0.0.0.0"},
                        {"GATEWAY_INTERFACE", "CGI/1.1"},
                        {"SERVER_PROTOCOL", "HTTP/1.1"},

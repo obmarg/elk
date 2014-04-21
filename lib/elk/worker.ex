@@ -1,4 +1,4 @@
-defmodule Pyexq.Worker do
+defmodule Elk.Worker do
   @moduledoc """
   State machine for workers.
   """
@@ -18,7 +18,7 @@ defmodule Pyexq.Worker do
 
   def handle_info(:timeout, state = {py_pid, nil}) do
     # TODO: Need to change elsewhere to provide task_info
-    task_info = Pyexq.Leaser.get_lease()
+    task_info = Elk.Leaser.get_lease()
 
     case task_info do
       nil -> 
@@ -45,7 +45,7 @@ defmodule Pyexq.Worker do
 
   def terminate(_reason, {_, {child_pid, task_info}}) do
     Process.exit(child_pid, :kill)
-    Pyexq.FunctionSupervisor.start_child(:release_sup, [[task_info]])
+    Elk.FunctionSupervisor.start_child(:release_sup, [[task_info]])
   end
 
   def terminate(_, _) do
@@ -56,7 +56,7 @@ defmodule Pyexq.Worker do
   ##
   def start_task(py_pid, _task_info) do
     {pid, _} = Process.spawn_monitor fn ->
-      IO.puts inspect Pyexq.WSGI.call_app(py_pid, "test_app", "app", "")
+      IO.puts inspect Elk.WSGI.call_app(py_pid, "test_app", "app", "")
     end
     pid
   end
@@ -67,7 +67,7 @@ defmodule Pyexq.Worker do
       :normal -> :delete_sup
       _ -> :release_sup
     end
-    Pyexq.FunctionSupervisor.start_child(cleanup_sup, [[task_info]])
+    Elk.FunctionSupervisor.start_child(cleanup_sup, [[task_info]])
   end
 
   defp log_down(:normal, task_info) do

@@ -1,4 +1,4 @@
-defmodule Pyexq.Leaser do
+defmodule Elk.Leaser do
   @moduledoc """
   Module responsible for querying for leases. 
   """
@@ -20,7 +20,7 @@ defmodule Pyexq.Leaser do
   end
 
   def handle_call(:get_lease, _from, state) do
-    tasks = Pyexq.GoogleAPI.lease_tasks(1)
+    tasks = Elk.GoogleAPI.lease_tasks(1)
     case tasks do
       [task] -> 
         Lager.info "Lease Taken"
