@@ -31,6 +31,13 @@ def call_application(module_name, app_name, environ, input_str):
         status_headers[:] = [status, headers]
 
     environ = dict(environ)
+    # TODO: Tried wsgiref.util.FileWrapper.
+    #       Would have been nice if it worked...
+    #       Think gunicorn might be a good place to look for an example.
+    #       Looks like gunicorn.http.body.Body is what would be passed in
+    #       as wsgi.input there.
+    #       If that doesn't help, then maybe should implement my own class
+    #       with logging to see how stuff is being dealt with...
     environ['wsgi.input'] = StringIO(input_str)
     environ['wsgi.error'] = err_stream = StringIO()
 
@@ -46,13 +53,6 @@ def call_application(module_name, app_name, environ, input_str):
 
     return (status_headers[0], status_headers[1], ''.join(body),
             err_stream.getvalue())
-
-
-def _erl_pairs_to_dict(pairs):
-    '''
-    Converts a list of pairs to a dict
-    '''
-    return {key.to_string(): value.to_string() for key, value in pairs}
 
 
 def _test_app(environ, start_response):
