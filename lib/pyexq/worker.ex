@@ -43,6 +43,11 @@ defmodule Pyexq.Worker do
     end
   end
 
+  def terminate(reason, {child_pid, task_info}) do
+    Process.exit(child_pid, :kill)
+    Pyexq.FunctionSupervisor.start_child(:release_sup, [[task_info]])
+  end
+
   ##
   # Private Functions
   ##
