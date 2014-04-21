@@ -15,7 +15,6 @@ defmodule Pyexq.Supervisor do
     ]
 
     children = [
-      supervisor(Pyexq.LeaseHolderSupervisor, []),
       func_supervisor(:delete_sup, &Pyexq.GoogleAPI.delete_task/1),
       func_supervisor(:release_sup, &Pyexq.GoogleAPI.release_lease/1),
 

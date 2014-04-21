@@ -2,74 +2,71 @@ defmodule Pyexq.Worker do
   @moduledoc """
   State machine for workers.
   """
-  use GenFSM.Behaviour
+  use GenServer.Behaviour
   require Lager
-
-  ##
-  # External API
-  ##
-  def next_task(worker_pid) do
-    :gen_fsm.send_event(worker_pid, :coin)
-  end
-
 
   ##
   # GenFSM Functions
   ##
   def start_link() do
-    :gen_fsm.start_link(__MODULE__, [], [])
+    :gen_server.start_link(__MODULE__, [], [])
   end
 
   def init(_) do
-    {:ok, :idle, {}, 200}
+    {:ok, nil, 200}
   end
 
-  def idle(:timeout, _) do
-    fetch_lease()
+  def handle_info(:timeout, nil) do
+    # TODO: Need to change elsewhere to provide task_info
+    task_info = Pyexq.Leaser.get_lease()
+
+    case task_info do
+      nil -> 
+        Lager.info "No leases avaliable"
+        {:on, nil, 10000}
+
+      task_info ->
+        Lager.info "Got lease.  Starting task"
+        pid = start_task(task_info)
+        {:noreply, {pid, task_info}}
+    end
   end
 
-  def working(:next_task, _) do
-    fetch_lease()
+  def handle_info(msg, state = {child_pid, task_info}) do
+    case msg do
+      { :DOWN, _, :process, ^child_pid, reason } ->
+        finish_task(reason, task_info)
+        {:noreply, nil, 200}
+
+      msg -> 
+        {:noreply, state}
+    end
   end
 
   ##
   # Private Functions
   ##
-  defp fetch_lease() do
-    task_id = Pyexq.Leaser.get_lease()
-
-    case task_id do
-      nil -> 
-        Lager.info "No leases avaliable"
-        {:next_state, :idle, {}, 10000}
-
-      task_id ->
-        Lager.info "Got lease.  Starting task"
-        start_task(task_id)
-        {:next_state, :working, {}}
-
-    end
-  end
-
-  def start_task(task) do
-    pid = spawn fn ->
+  def start_task(task_info) do
+    {pid, _} = Process.spawn_monitor fn ->
       IO.puts inspect Pyexq.WSGI.call_app("test_app", "app", "")
     end
-    Pyexq.LeaseHolderSupervisor.start_child({pid, &(finish_task(task, self, &1))})
+    pid
   end
 
-  @doc """
-  This function is passed as a callback into the FunctionSupervisor.
-  It handles clean up & kicks off the next task.
-  """
-  defp finish_task(task_id, worker_pid, status) do
-    Lager.info "Finishing Task"
-    cleanup_sup = case status do
-      :done -> :delete_sup
-      :error -> :release_sup
+  defp finish_task(reason, task_info) do
+    log_down(reason, task_info)
+    cleanup_sup = case reason do
+      :normal -> :delete_sup
+      other -> :release_sup
     end
-    Pyexq.FunctionSupervisor.start_child(cleanup_sup, [[task_id]])
-    next_task(worker_pid)
+    Pyexq.FunctionSupervisor.start_child(cleanup_sup, [[task_info]])
   end
 
+  defp log_down(:normal, task_info) do
+    Lager.info "Child process ended. Task #{inspect task_info} done"
+  end
+
+  defp log_down(reason, task_info) do
+    Lager.info "Child process ended.  Task #{inspect task_info} failed"
+  end
 end
