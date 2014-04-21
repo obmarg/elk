@@ -23,7 +23,7 @@ defmodule Elk.Worker do
     case task_info do
       nil -> 
         Lager.info "No leases avaliable"
-        {:ok, state, 10000}
+        {:noreply, state, 10000}
 
       task_info ->
         Lager.info "Got lease.  Starting task"
