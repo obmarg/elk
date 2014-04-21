@@ -71,10 +71,10 @@ defmodule Elk.Worker do
   end
 
   defp log_down(:normal, task_info) do
-    Lager.info "Child process ended. Task #{inspect task_info} done"
+    Lager.info "Child process ended. #{inspect task_info} done"
   end
 
   defp log_down(_reason, task_info) do
-    Lager.info "Child process ended.  Task #{inspect task_info} failed"
+    Lager.info "Child process ended. #{inspect task_info} failed"
   end
 end

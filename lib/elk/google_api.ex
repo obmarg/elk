@@ -22,32 +22,28 @@ defmodule Elk.GoogleAPI do
 
     post("/lease?#{query_string}", "")
     |> process_response
-    |> Dict.get("items")
+    |> Dict.get("items", [])
+    |> Enum.map(&GoogleAPIReader.parse_task/1)
   end
 
   def release_lease(task_info) do
-    task_id = Dict.get(task_info, "id")
-    Lager.info "Releasing lease for #{task_id}"
+    Lager.info "Releasing lease for #{inspect task_info}"
+
+    {:ok, json_data} = task_info
+    |> GoogleAPIWriter.to_hashdict
+    |> JSON.encode
 
     query_string = URI.encode_query [{:newLeaseSeconds, 0}]
 
-    # This is stupid, but apparently the API doesn't like it's own data,
-    # so we have to replace queueName with the short queue name
-    # (as opposed to the full path the lease API sends us)
-    {:ok, json_data} = task_info
-    |> Dict.put("queueName", "pulltest")
-    |> JSON.encode
-
-    "/#{task_id}?#{query_string}"
+    "/#{task_info.id}?#{query_string}"
     |> post(json_data, [{"Content-Type", "application/json"}]) 
     |> process_response
   end
 
   def delete_task(task_info) do
-    task_id = Dict.get(task_info, "task_id")
-    Lager.info "Deleting task #{task_id}"
+    Lager.info "Deleting task #{inspect task_info}"
 
-    delete("/#{task_id}")
+    delete("/#{task_info.id}")
     |> process_response
   end
 
@@ -89,5 +85,47 @@ defmodule Elk.GoogleAPI do
       Response[body: body, status_code: status, headers: _headers ] ->
         throw "Remote error #{status} - #{inspect body}"
     end
+  end
+end
+
+##
+# Task Conversion Protocol
+##
+defprotocol GoogleAPIReader do
+  @doc "Converts a google API task (as a HashSet) to an Elk.Task"
+  def parse_task(task)
+end
+
+defprotocol GoogleAPIWriter do
+  @doc "Converts an internal Record to a HashSet, ready for JSON serialization"
+  def to_hashdict(data)
+end
+
+defimpl GoogleAPIReader, for: HashDict do
+  require Elk.Task
+
+  def parse_task(task) do
+    {:ok, payload} = Dict.get(task, "payloadBase64")
+                      |> :base64.decode
+                      |> JSON.decode
+
+    # Re-JSONify the actual tasks payload so the WSGI layer
+    # can just pass it in.
+    {:ok, task_payload} = JSON.encode(Dict.get(payload, "payload"))
+
+    Elk.Task[id: Dict.get(task, "id"),
+             url: Dict.get(payload, "url"),
+             payload: task_payload,
+             orig: task]
+  end
+end
+
+defimpl GoogleAPIWriter, for: Elk.Task do
+  def to_hashdict(task) do
+    # This is stupid, but apparently the google API doesn't like it's own
+    # data, so we have to replace queueName with the short queue name (as
+    # opposed to the full path the lease API sends us).  This might not be
+    # universal, but it certainly is for the release_lease endpoint we use.
+    Dict.put(task.orig, "queueName", @task_queue)
   end
 end

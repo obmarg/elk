@@ -16,14 +16,14 @@ defmodule Elk.Leaser do
   end
 
   def init(_) do
-    {:ok, [HashSet.new, :working]}
+    {:ok, nil}
   end
 
   def handle_call(:get_lease, _from, state) do
     tasks = Elk.GoogleAPI.lease_tasks(1)
     case tasks do
+      [] -> {:reply, nil, state}
       [task] -> {:reply, task, state}
-      nil -> {:reply, nil, state}
     end
   end
 
