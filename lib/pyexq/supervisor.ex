@@ -7,8 +7,6 @@ defmodule Pyexq.Supervisor do
 
 
   def init([]) do
-    HTTPotion.start
-
     pool_options = [
       name: {:local, :python_pool},
       worker_module: :python,

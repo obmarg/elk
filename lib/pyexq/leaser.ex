@@ -2,6 +2,7 @@ defmodule Pyexq.Leaser do
   @moduledoc """
   Module responsible for querying for leases. 
   """
+  require Lager
 
   def get_lease() do
     # TODO: Check syntax of this.
@@ -20,10 +21,13 @@ defmodule Pyexq.Leaser do
 
   def handle_call(:get_lease, _from, state) do
     tasks = Pyexq.GoogleAPI.lease_tasks(1)
-    # TODO: This stuff needs worked on still...
     case tasks do
-      nil -> {:reply, nil, state}
-      [task] -> {:reply, Dict.get(task, 'id'), state}
+      [task] -> 
+        Lager.info "Lease Taken"
+        Lager.debug inspect task
+        {:reply, Dict.get(task, "id"), state}
+      nil -> 
+        {:reply, nil, state}
     end
   end
 

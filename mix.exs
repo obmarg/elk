@@ -10,7 +10,8 @@ defmodule Pyexq.Mixfile do
 
   # Configuration for the OTP application
   def application do
-    [mod: { Pyexq, [] }]
+    [ applications: [ :exlager, :httpotion ],
+      mod: { Pyexq, [] } ]
   end
 
   # Returns the list of dependencies in the format:
@@ -23,6 +24,7 @@ defmodule Pyexq.Mixfile do
       {:poolboy, github: "devinus/poolboy", tag: "1.0.0"}, 
       {:amrita, "~>0.2", github: "josephwilk/amrita"}, 
       {:httpotion, github: "myfreeweb/httpotion" }, 
-      {:json, github: "cblage/elixir-json"} ]
+      {:json, github: "cblage/elixir-json"},
+      {:exlager, github: "khia/exlager"}]
   end
 end

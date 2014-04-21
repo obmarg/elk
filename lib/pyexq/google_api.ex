@@ -5,6 +5,7 @@ defmodule Pyexq.GoogleAPI do
   """
 
   use HTTPotion.Base
+  require Lager
 
   @base_url "https://www.googleapis.com/taskqueue/v1beta2/projects"
   @project "rolepoint-integration"
@@ -15,18 +16,22 @@ defmodule Pyexq.GoogleAPI do
   end
 
   def lease_tasks(n_tasks) do
-    query_string = URI.encode_query [{:leaseSecs, 300}, {:numTasks, n_tasks}]
-    data = post("/lease?#{query_string}", '') |> process_response
-    # TODO: Could check 'kind' is taskqueue#tasks
-    Dict.get(data, "items")
+    Lager.info "Requesting #{n_tasks} leases"
+    query_string = URI.encode_query [{:leaseSecs, 60}, {:numTasks, n_tasks}]
+
+    post("/lease?#{query_string}", '') 
+    |> process_response
+    |> Dict.get("items")
   end
 
   def release_lease(task_id) do
     # TODO: Assuming this doesn't work...
+    Lager.info "Releasing lease for #{task_id}"
     put("/#{task_id}", [{:newLeaseSeconds, 0}]) |> process_response
   end
 
   def delete_task(task_id) do
+    Lager.info "Deleting task #{task_id}"
     delete("/#{task_id}") |> process_response
   end
 
