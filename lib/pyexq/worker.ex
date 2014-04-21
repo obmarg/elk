@@ -38,10 +38,10 @@ defmodule Pyexq.Worker do
   defp fetch_lease() do
     task_id = Pyexq.Leaser.get_lease()
     case task_id do
-      nil -> {:idle, {}, 10000}
+      nil -> {:next_state, :idle, {}, 10000}
       task_id ->
         start_task(task_id)
-        {:working, {}}
+        {:next_state, :working, {}}
     end
   end
 

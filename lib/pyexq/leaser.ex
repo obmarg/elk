@@ -22,7 +22,7 @@ defmodule Pyexq.Leaser do
     tasks = Pyexq.GoogleAPI.lease_tasks(1)
     # TODO: This stuff needs worked on still...
     case tasks do
-      [] -> {:reply, nil, state}
+      nil -> {:reply, nil, state}
       [task] -> {:reply, Dict.get(task, 'id'), state}
     end
   end
