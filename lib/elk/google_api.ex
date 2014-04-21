@@ -8,18 +8,19 @@ defmodule Elk.GoogleAPI do
   require Lager
 
   @base_url "https://www.googleapis.com/taskqueue/v1beta2/projects"
-  @project "rolepoint-integration"
+  @project "s~rolepoint-integration"
   @task_queue "pulltest"
 
   def list_tasks() do
-    get('') |> process_response
+    get('')
+    |> process_response
   end
 
   def lease_tasks(n_tasks) do
     Lager.info "Requesting #{n_tasks} leases"
     query_string = URI.encode_query [{:leaseSecs, 60}, {:numTasks, n_tasks}]
 
-    post("/lease?#{query_string}", '') 
+    post("/lease?#{query_string}", "")
     |> process_response
     |> Dict.get("items")
   end
@@ -32,7 +33,9 @@ defmodule Elk.GoogleAPI do
 
   def delete_task(task_id) do
     Lager.info "Deleting task #{task_id}"
-    delete("/#{task_id}") |> process_response
+
+    delete("/#{task_id}")
+    |> process_response
   end
 
   ##
@@ -50,8 +53,14 @@ defmodule Elk.GoogleAPI do
   end
 
   def process_response_body(body) do
-    {:ok, data} = JSON.decode body
-    data
+    case JSON.decode(body) do
+      {:ok, data} -> data
+      {:unexpected_end_of_buffer, _} -> body
+      {error, _} ->
+        Lager.warning "Could not process JSON response: #{error}"
+        Lager.warning "Body: #{body}"
+        body
+    end
   end
 
   ##
