@@ -1,7 +1,7 @@
 defmodule Elk do
   use Application.Behaviour
 
-  defrecord Task, id: nil, url: nil, payload: nil, orig: nil
+  defrecord Task, id: nil, url: nil, payload: nil, orig: nil, retries: 0
 
   # See http://elixir-lang.org/docs/stable/Application.Behaviour.html
   # for more information on OTP Applications

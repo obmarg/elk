@@ -115,7 +115,8 @@ defimpl GoogleAPIReader, for: HashDict do
     Elk.Task[id: Dict.get(task, "id"),
              url: Dict.get(payload, "url"),
              payload: task_payload,
-             orig: task]
+             orig: task,
+             retries: Dict.get(task, "retry_count")]
   end
 end
 

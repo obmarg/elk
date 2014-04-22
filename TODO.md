@@ -1,7 +1,4 @@
-- Get data sending working
-- Fix lease releasing
 - Look into killing python tasks that have passed their deadline.
 - Better lease requesting behaviour (particularly when quiet)
-- Kill tasks after n retries
 - General logging & configuration niceness
 - MARKETING SITE.  possibly blog posts etc.

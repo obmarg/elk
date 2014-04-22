@@ -4,6 +4,9 @@ defmodule Elk.Leaser do
   """
   require Lager
 
+  # TODO: Make this configurable
+  @max_retries 5
+
   def get_lease() do
     # TODO: Check syntax of this.
     :gen_server.call(:leaser, :get_lease)
@@ -19,11 +22,20 @@ defmodule Elk.Leaser do
     {:ok, nil}
   end
 
-  def handle_call(:get_lease, _from, state) do
+  def handle_call(:get_lease, from, state) do
     tasks = Elk.GoogleAPI.lease_tasks(1)
     case tasks do
       [] -> {:reply, nil, state}
-      [task] -> {:reply, task, state}
+
+      [task] ->
+        if task.retries > @max_retries do
+          # TODO: Sticking these somewhere other than a log might be nice.
+          Lager.info "Task #{inspect task} has been retried too many times."
+          Elk.FunctionSupervisor.start_child(:delete_sup, [[task]])
+          handle_call(:get_lease, from, state)
+        else
+          {:reply, task, state}
+        end
     end
   end
 
