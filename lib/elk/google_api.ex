@@ -29,9 +29,9 @@ defmodule Elk.GoogleAPI do
   def release_lease(task_info) do
     Lager.info "Releasing lease for #{inspect task_info}"
 
-    {:ok, json_data} = task_info
+    json_data = task_info
     |> GoogleAPIWriter.to_hashdict
-    |> JSON.encode
+    |> JSON.encode!
 
     query_string = URI.encode_query [{:newLeaseSeconds, 0}]
 
@@ -105,13 +105,12 @@ defimpl GoogleAPIReader, for: HashDict do
   require Elk.Task
 
   def parse_task(task) do
-    {:ok, payload} = Dict.get(task, "payloadBase64")
-                      |> :base64.decode
-                      |> JSON.decode
+    payload = Dict.get(task, "payloadBase64")
+              |> :base64.decode
+              |> JSON.decode!
 
-    # Re-JSONify the actual tasks payload so the WSGI layer
-    # can just pass it in.
-    {:ok, task_payload} = JSON.encode(Dict.get(payload, "payload"))
+    # Re-JSONify the actual task payload so the WSGI layer can just pass it in.
+    task_payload = JSON.encode!(Dict.get(payload, "payload"))
 
     Elk.Task[id: Dict.get(task, "id"),
              url: Dict.get(payload, "url"),
@@ -121,6 +120,10 @@ defimpl GoogleAPIReader, for: HashDict do
 end
 
 defimpl GoogleAPIWriter, for: Elk.Task do
+
+  # TODO: need to make this configurable somehow...
+  @task_queue "pulltest"
+
   def to_hashdict(task) do
     # This is stupid, but apparently the google API doesn't like it's own
     # data, so we have to replace queueName with the short queue name (as
