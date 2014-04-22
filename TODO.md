@@ -1,4 +1,3 @@
 - Look into killing python tasks that have passed their deadline.
-- Better lease requesting behaviour (particularly when quiet)
 - General logging & configuration niceness
 - MARKETING SITE.  possibly blog posts etc.

@@ -16,7 +16,7 @@ defmodule Elk.GoogleAPI do
     |> process_response
   end
 
-  def lease_tasks(n_tasks) do
+  def lease_tasks(n_tasks) when n_tasks >= 1 do
     Lager.info "Requesting #{n_tasks} leases"
     query_string = URI.encode_query [{:leaseSecs, 500}, {:numTasks, n_tasks}]
 
@@ -24,6 +24,10 @@ defmodule Elk.GoogleAPI do
     |> process_response
     |> Dict.get("items", [])
     |> Enum.map(&GoogleAPIReader.parse_task/1)
+  end
+
+  def lease_tasks(_) do
+    []
   end
 
   def release_lease(task_info) do

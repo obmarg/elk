@@ -6,10 +6,10 @@ defmodule Elk.Leaser do
 
   # TODO: Make this configurable
   @max_retries 5
+  @poll_time 10 * 1000
 
-  def get_lease() do
-    # TODO: Check syntax of this.
-    :gen_server.call(:leaser, :get_lease)
+  def worker_ready() do
+    :gen_server.call(:leaser, :worker_ready)
   end
 
   use GenServer.Behaviour
@@ -19,31 +19,48 @@ defmodule Elk.Leaser do
   end
 
   def init(_) do
-    {:ok, nil}
+    {:ok, []}
   end
 
-  def handle_call(:get_lease, from, state) do
-    tasks = Elk.GoogleAPI.lease_tasks(1)
-    case tasks do
-      [] -> {:reply, nil, state}
+  def handle_call(:worker_ready, {pid, _}, []) do
+    Lager.info "Worker #{inspect pid} in queue"
+    {:reply, nil, [pid], 0}
+  end
 
-      [task] ->
-        if task.retries > @max_retries do
-          # TODO: Sticking these somewhere other than a log might be nice.
-          Lager.info "Task #{inspect task} has been retried too many times."
-          Elk.FunctionSupervisor.start_child(:delete_sup, [[task]])
-          handle_call(:get_lease, from, state)
-        else
-          {:reply, task, state}
-        end
+  def handle_call(:worker_ready, {pid, _}, waiting) do
+    Lager.info "Worker #{inspect pid} in queue."
+    {:reply, nil, Enum.uniq([pid | waiting]), @poll_time}
+  end
+
+  def handle_info(:timeout, waiting) do
+    tasks = waiting
+    |> length
+    |> Elk.GoogleAPI.lease_tasks
+    |> Enum.map(&process_task/1)
+    |> Enum.filter(&(&1))
+
+    Lager.info "#{length(tasks)} tasks waiting"
+
+    # If there's no tasks this will stick everything into waiting.
+    {workers, waiting} = Enum.split(waiting, length(tasks))
+    Enum.zip(workers, tasks) |> Enum.map fn ({worker, task}) ->
+      Elk.Worker.send_task(worker, task)
+    end
+
+    Enum.map(waiting, &Elk.Worker.ping/1)
+
+    {:noreply, waiting, @poll_time}
+  end
+
+  defp process_task(task) do
+    Lager.info "Processing task"
+    if task.retries < @max_retries do
+      task
+    else
+      # TODO: Sticking these somewhere other than a log might be nice.
+      Lager.info "Task #{inspect task} has been retried too many times."
+      Elk.FunctionSupervisor.start_child(:delete_sup, [[task]])
+      nil
     end
   end
-
 end
-  # TODO: Could refactor to a kinda-state machine:
-  # States: - Task Queue Empty (when requests return no results).
-  #           - Maintain a list of requesting pids.
-  #           - Use this to determine how many leases to ask for.
-  #           - timeout every 10s (or something) to check again.
-  #         - Working
-  #           - Each lease request is made instantly.

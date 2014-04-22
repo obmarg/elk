@@ -5,6 +5,19 @@ defmodule Elk.Worker do
   use GenServer.Behaviour
   require Lager
 
+  @worker_timeout 1000 * 60
+
+  ##
+  # External API
+  ##
+  def send_task(worker, task) do
+    :gen_server.cast(worker, {:task, task})
+  end
+
+  def ping(worker) do
+    :gen_server.cast(worker, :ping)
+  end
+
   ##
   # GenFSM Functions
   ##
@@ -16,19 +29,20 @@ defmodule Elk.Worker do
     {:ok, {py_pid, nil}, 200}
   end
 
-  def handle_info(:timeout, state = {py_pid, nil}) do
-    task = Elk.Leaser.get_lease()
+  def handle_cast({:task, task}, {py_pid, nil}) do
+    Lager.info "Worker starting #{inspect task}"
+    pid = start_task(py_pid, task)
+    {:noreply, {py_pid, {pid, task}}}
+  end
 
-    case task do
-      nil -> 
-        Lager.info "No leases avaliable"
-        {:noreply, state, 10000}
+  def handle_cast(:ping, state) do
+    # Ping sent by leaser to reset the workers timeout.
+    {:noreply, state, @worker_timeout}
+  end
 
-      task ->
-        Lager.info "Got lease.  Starting task"
-        pid = start_task(py_pid, task)
-        {:noreply, {py_pid, {pid, task}}}
-    end
+  def handle_info(:timeout, state) do
+    task = Elk.Leaser.worker_ready()
+    {:noreply, state, @worker_timeout}
   end
 
   def handle_info(msg, state = {py_pid, {child_pid, task}}) do
@@ -54,7 +68,6 @@ defmodule Elk.Worker do
   # Private Functions
   ##
   defp start_task(py_pid, task) do
-    # TODO: Need to extract payload from task.
     {pid, _} = Process.spawn_monitor fn ->
       IO.puts inspect Elk.WSGI.call_task(py_pid, "test_app", "app", task)
     end
