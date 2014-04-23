@@ -1,3 +1,6 @@
 - Look into killing python tasks that have passed their deadline.
+- Better taks failure handling
+  - Backoff on failing tasks
+  - Store details of fully failed tasks
 - General logging & configuration niceness
 - MARKETING SITE.  possibly blog posts etc.

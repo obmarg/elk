@@ -5,7 +5,7 @@ defmodule Elk.Worker do
   use GenServer.Behaviour
   require Lager
 
-  @worker_timeout 1000 * 60
+  @worker_timeout 1000 * 30
 
   ##
   # External API
