@@ -13,10 +13,12 @@ defmodule Elk.WSGI do
     {status, headers, body} = :python.call(
       py_worker, :wsgi_wrapper, :call_application, params
     )
-    # TODO: Need to check for non-200 returns in here...
     Lager.info "Worker Finished: #{status}"
     Lager.info "Body: #{body}"
-    nil
+
+    unless status in 200..299 do
+      exit :task_failed
+    end
 
     # TODO: Need some timeout stuff & tests.
   end
