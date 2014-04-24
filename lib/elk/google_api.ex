@@ -8,8 +8,6 @@ defmodule Elk.GoogleAPI do
   require Lager
 
   @base_url "https://www.googleapis.com/taskqueue/v1beta2/projects"
-  @project "s~rolepoint-integration"
-  @task_queue "pulltest"
 
   def list_tasks() do
     get('')
@@ -55,7 +53,9 @@ defmodule Elk.GoogleAPI do
   # HTTPotion.Base implementation
   ##
   def process_url(url) do
-    "#{@base_url}/#{@project}/taskqueues/#{@task_queue}/tasks#{url}"
+    project = Elk.Config.get_str("ELK_PROJECT")
+    task_queue = Elk.Config.get_str("ELK_TASK_QUEUE")
+    "#{@base_url}/#{project}/taskqueues/#{task_queue}/tasks#{url}"
   end
 
   def process_request_headers(headers) do
@@ -126,14 +126,12 @@ end
 
 defimpl GoogleAPIWriter, for: Elk.Task do
 
-  # TODO: need to make this configurable somehow...
-  @task_queue "pulltest"
-
   def to_hashdict(task) do
+    task_queue = Elk.Config.get_str("ELK_TASK_QUEUE")
     # This is stupid, but apparently the google API doesn't like it's own
     # data, so we have to replace queueName with the short queue name (as
     # opposed to the full path the lease API sends us).  This might not be
     # universal, but it certainly is for the release_lease endpoint we use.
-    Dict.put(task.orig, "queueName", @task_queue)
+    Dict.put(task.orig, "queueName", task_queue)
   end
 end

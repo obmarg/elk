@@ -37,7 +37,6 @@ defmodule Elk.TokenHandler do
     end
   end
 
-  @client_id ""
   @scope "https://www.googleapis.com/auth/taskqueue.consumer"
   @duration_secs 60 * 60
 
@@ -61,7 +60,8 @@ defmodule Elk.TokenHandler do
 
   def build_jwt() do
     {:ok, python_pid} = :python.start()
-    params = [@client_id, @scope, @duration_secs]
+    client_id = Elk.Config.get_str("ELK_CLIENT_ID")
+    params = [client_id, @scope, @duration_secs]
     signed_jwt = :python.call(python_pid, :auth, :get_signed_jwt, params)
     :python.stop(python_pid)
     signed_jwt

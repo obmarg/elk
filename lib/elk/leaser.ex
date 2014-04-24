@@ -4,7 +4,8 @@ defmodule Elk.Leaser do
   """
   require Lager
 
-  # TODO: Make this configurable
+  # TODO: Would I be better centralising these in Elk.Config?
+  # Default parameter values.
   @max_retries 5
   @poll_time 10 * 1000
 
@@ -54,7 +55,8 @@ defmodule Elk.Leaser do
 
   defp process_task(task) do
     Lager.info "Processing task"
-    if task.retries < @max_retries do
+    max_retries = Elk.Config.get_int("ELK_MAX_RETRIES", @max_retries)
+    if task.retries < max_retries do
       task
     else
       # TODO: Sticking these somewhere other than a log might be nice.

@@ -1,6 +1,5 @@
 ### Must have
 
-- General logging & configuration niceness.
 - Python virtualenv support (and installing dependencies to the virtualenv)
 - Figure out how to package python files.
 - Tests, if I can figure out how best to write them.
