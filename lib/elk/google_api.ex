@@ -9,11 +9,13 @@ defmodule Elk.GoogleAPI do
 
   @base_url "https://www.googleapis.com/taskqueue/v1beta2/projects"
 
+  @doc "Gets a list of tasks from Google"
   def list_tasks() do
     get('')
     |> process_response
   end
 
+  @doc "Leases n tasks from google"
   def lease_tasks(n_tasks) when n_tasks >= 1 do
     Lager.info "Requesting #{n_tasks} leases"
     query_string = URI.encode_query [{:leaseSecs, 500}, {:numTasks, n_tasks}]
@@ -28,6 +30,7 @@ defmodule Elk.GoogleAPI do
     []
   end
 
+  @doc "Releases a lease, ready for a retry"
   def release_lease(task_info) do
     Lager.info "Releasing lease for #{inspect task_info}"
 
@@ -42,6 +45,7 @@ defmodule Elk.GoogleAPI do
     |> process_response
   end
 
+  @doc "Deletes a task.  For use when done, or out of retries"
   def delete_task(task_info) do
     Lager.info "Deleting task #{inspect task_info}"
 

@@ -14,6 +14,7 @@ defmodule Elk.TokenHandler do
     :gen_server.start_link({:local, :token_handler}, __MODULE__, [], [])
   end
 
+  @doc "Gets a valid token from the TokenHandler"
   def get_token() do
     :gen_server.call(:token_handler, :get_token)
   end

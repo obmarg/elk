@@ -1,6 +1,12 @@
 defmodule Elk.Leaser do
   @moduledoc """
-  Module responsible for querying for leases. 
+  Module responsible for querying for leases and passing them to workers.
+
+  Workers should tell the leaser when they are ready.  The leaser will then
+  send them a valid lease when it gets one.
+
+  The Leaser will query for leases instantly when all workers are busy, but
+  will batch requests together every 10s otherwise.
   """
   require Lager
 
@@ -9,9 +15,19 @@ defmodule Elk.Leaser do
   @max_retries 5
   @poll_time 10 * 1000
 
+  ##
+  # Public API
+  ## 
+
+  @doc "Tells the Leaser that a worker is ready."
   def worker_ready() do
     :gen_server.call(:leaser, :worker_ready)
   end
+
+
+  ##
+  # GenServer implementation
+  ##
 
   use GenServer.Behaviour
 
@@ -53,6 +69,10 @@ defmodule Elk.Leaser do
     {:noreply, waiting, @poll_time}
   end
 
+
+  ##
+  # Private Functions
+  ##
   defp process_task(task) do
     Lager.info "Processing task"
     max_retries = Elk.Config.get_int("ELK_MAX_RETRIES", @max_retries)
