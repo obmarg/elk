@@ -13,7 +13,9 @@ Required Variables:
 
 * ELK_PROJECT - The app engine project to read queues from.
 * ELK_TASK_QUEUE - The name of the pull queue to read from.
-* ELK_CLIENT_ID - The client ID to read from the pull queue with
+* ELK_CLIENT_ID - The client ID to read from the pull queue with.
+* ELK_APP_PACKAGE - The name of the python package to load the WSGI app from.
+* ELK_APP_NAME - The name of the WSGI app variable in ELK_APP_PACKAGE.
 
 Currently a private key will be expected in a file called `private.p12`.
 
