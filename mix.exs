@@ -10,7 +10,9 @@ defmodule Elk.Mixfile do
 
   # Configuration for the OTP application
   def application do
-    [ applications: [ :exlager, :httpotion ],
+    [ applications: [ :exlager, :httpotion,
+                      # These next ones are just to cover a bug in elixir 12.x
+                      :kernel, :stdlib, :elixir],
       mod: { Elk, [] } ]
   end
 
@@ -24,6 +26,7 @@ defmodule Elk.Mixfile do
       {:amrita, "~>0.2", github: "josephwilk/amrita"}, 
       {:httpotion, github: "myfreeweb/httpotion" }, 
       {:json, github: "cblage/elixir-json"},
-      {:exlager, github: "khia/exlager"}]
+      {:exlager, github: "khia/exlager"},
+      {:exrm, github: "bitwalker/exrm"} ]
   end
 end
