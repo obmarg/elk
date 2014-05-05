@@ -2,8 +2,8 @@ import time
 import json
 from oauth2client import crypt
 
-def get_signed_jwt(client_id, scope, duration_seconds):
-    with open('private.p12', 'rb') as f:
+def get_signed_jwt(client_id, scope, duration_seconds, key_filename):
+    with open(key_filename, 'rb') as f:
         key_data = f.read()
 
     signer = crypt.OpenSSLSigner.from_string(key_data)

@@ -15,6 +15,10 @@ defmodule Elk do
     # Check required config:
     Enum.map @required_config, &Elk.Config.check_var/1
 
+    keyfile = Elk.Config.get_str(:keyfile) 
+    unless File.exists?(keyfile) do
+      IO.puts "#{keyfile} does not exist"
+    end
 
     task_queue = Elk.Config.get_str(:task_queue)
     project = Elk.Config.get_str(:project)

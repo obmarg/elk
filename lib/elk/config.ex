@@ -20,11 +20,15 @@ defmodule Elk.Config do
   end
 
   @doc "Gets a string config variable, or exits."
-  def get_str(var_name) do
+  def get_str(var_name) when is_atom(var_name) do
     case get_env(var_name) do
       nil -> exit(:undefined_config)
       var -> var
     end
+  end
+
+  def get_str(var_names) when is_list(var_names) do
+    Enum.map(var_names, &get_str/1)
   end
 
   @doc "Gets a string config variable, or default."
