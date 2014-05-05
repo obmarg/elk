@@ -61,7 +61,7 @@ defmodule Elk.TokenHandler do
 
   def build_jwt() do
     {:ok, python_pid} = :python.start(Elk.Python.python_config())
-    client_id = Elk.Config.get_str("ELK_CLIENT_ID")
+    client_id = Elk.Config.get_str(:client_id)
     params = [client_id, @scope, @duration_secs]
     signed_jwt = :python.call(python_pid, :auth, :get_signed_jwt, params)
     :python.stop(python_pid)

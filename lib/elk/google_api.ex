@@ -57,8 +57,8 @@ defmodule Elk.GoogleAPI do
   # HTTPotion.Base implementation
   ##
   def process_url(url) do
-    project = Elk.Config.get_str("ELK_PROJECT")
-    task_queue = Elk.Config.get_str("ELK_TASK_QUEUE")
+    project = Elk.Config.get_str(:project)
+    task_queue = Elk.Config.get_str(:task_queue)
     "#{@base_url}/#{project}/taskqueues/#{task_queue}/tasks#{url}"
   end
 
@@ -131,7 +131,7 @@ end
 defimpl GoogleAPIWriter, for: Elk.Task do
 
   def to_hashdict(task) do
-    task_queue = Elk.Config.get_str("ELK_TASK_QUEUE")
+    task_queue = Elk.Config.get_str(:task_queue)
     # This is stupid, but apparently the google API doesn't like it's own
     # data, so we have to replace queueName with the short queue name (as
     # opposed to the full path the lease API sends us).  This might not be

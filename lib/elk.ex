@@ -5,24 +5,19 @@ defmodule Elk do
   defrecord Task, id: nil, url: nil, payload: nil, orig: nil, retries: 0
 
   @required_config [
-    "ELK_TASK_QUEUE", "ELK_PROJECT", "ELK_CLIENT_ID",
-    "ELK_APP_PACKAGE", "ELK_APP_NAME"
+    :task_queue, :project, :client_id, :app_package, :app_name, :keyfile,
   ]
 
   # See http://elixir-lang.org/docs/stable/Application.Behaviour.html
   # for more information on OTP Applications
   def start(_type, _args) do
 
-    # Check for required config:
-    Enum.map @required_config, fn (var_name) ->
-      unless Elk.Config.get_str(var_name, nil) do
-        IO.puts "#{var_name} not defined"
-        exit(:config_error) 
-      end
-    end
+    # Check required config:
+    Enum.map @required_config, &Elk.Config.check_var/1
 
-    task_queue = Elk.Config.get_str("ELK_TASK_QUEUE")
-    project = Elk.Config.get_str("ELK_PROJECT")
+
+    task_queue = Elk.Config.get_str(:task_queue)
+    project = Elk.Config.get_str(:project)
     Lager.notice "Elk starting for #{task_queue} on #{project}"
 
     Elk.Supervisor.start_link

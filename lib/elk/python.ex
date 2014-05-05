@@ -16,7 +16,7 @@ defmodule Elk.Python do
   end
 
   defp python_executable() do
-    case Elk.Config.get_str("ELK_VIRTUAL_ENV", nil) do
+    case Elk.Config.get_str(:virtual_env, nil) do
       nil -> nil
       virtual_env -> to_char_list(virtual_env <> "bin/python")
     end

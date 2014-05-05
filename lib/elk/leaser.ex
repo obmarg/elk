@@ -75,7 +75,7 @@ defmodule Elk.Leaser do
   ##
   defp process_task(task) do
     Lager.info "Processing task"
-    max_retries = Elk.Config.get_int("ELK_MAX_RETRIES", @max_retries)
+    max_retries = Elk.Config.get_int(:max_retries, @max_retries)
     if task.retries < max_retries do
       task
     else

@@ -68,8 +68,8 @@ defmodule Elk.Worker do
   # Private Functions
   ##
   defp start_task(py_pid, task) do
-    package = Elk.Config.get_str("ELK_APP_PACKAGE")
-    app = Elk.Config.get_str("ELK_APP_NAME")
+    package = Elk.Config.get_str(:app_package)
+    app = Elk.Config.get_str(:app_name)
 
     {pid, _} = Process.spawn_monitor fn ->
       IO.puts inspect Elk.WSGI.call_task(py_pid, package, app, task)
