@@ -2,7 +2,6 @@
 
 - Documentation
 - Logging python processes
-- Installing elk python dependencies.
 - Tests, if I can figure out how best to write them.
 
 ### Good stuff

@@ -27,6 +27,7 @@ defmodule Elk.Mixfile do
       {:httpotion, github: "myfreeweb/httpotion" }, 
       {:json, github: "cblage/elixir-json"},
       {:exlager, github: "khia/exlager"},
-      {:exrm, github: "bitwalker/exrm"} ]
+      {:exrm, github: "bitwalker/exrm"}, 
+    ]
   end
 end

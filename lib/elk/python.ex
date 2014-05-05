@@ -7,7 +7,8 @@ defmodule Elk.Python do
   Returns a configuration suitable for passing in to :python.start
   """
   def python_config do
-    config = [{:python_path, :code.priv_dir('elk')}]
+    config = [{:python_path, [:code.priv_dir('elk'),
+                              :code.priv_dir('elk') ++ '/python_deps']}]
     case python_executable() do
       nil -> config
       exe -> Dict.put(config, :python, exe)
@@ -17,7 +18,7 @@ defmodule Elk.Python do
   defp python_executable() do
     case Elk.Config.get_str("ELK_VIRTUAL_ENV", nil) do
       nil -> nil
-      virtual_env -> {:python, to_char_list(virtual_env <> "bin/python")}
+      virtual_env -> to_char_list(virtual_env <> "bin/python")
     end
   end
 

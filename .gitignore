@@ -8,3 +8,4 @@ log/
 
 # Python stuff
 *.pyc
+priv/python_deps
