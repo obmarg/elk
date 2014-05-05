@@ -33,6 +33,21 @@ There is an example application in the `example` folder that contains a python
 file and a shell script for setting up environment variables.  This would be a
 good place to start for developing a python task application.
 
+#### Configuring Elk
+
+Since elk is configured through environment variables, a configuration shell
+script is the recommended way to configure an Elk deployment.  Ideally this
+script should setup all the environment variables correctly, then start Elk
+itself.  `example/env.sh` makes a good starting point for this.
+
+#### Installing Elk Python Dependencies.
+
+Elk comes with most of it's dependencies.  However, some dependencies need
+compiled, and are not suitable for distribution with Elk.  These will need to
+be installed manually, either using `pip` or another package manager:
+
+* PyOpenSSL
+
 #### Running Elk
 
 TODO.
