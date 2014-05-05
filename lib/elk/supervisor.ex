@@ -45,7 +45,8 @@ defmodule Elk.WorkerSupervisor do
   end
 
   defp start_workers(sup) do
-    {:ok, python} = :supervisor.start_child(sup, worker(:python, []))
+    python_args = Elk.Python.python_config
+    {:ok, python} = :supervisor.start_child(sup, worker(:python, [python_args]))
     :supervisor.start_child(sup, worker(Elk.Worker, [python]))
   end
 end

@@ -1,8 +1,8 @@
 ### Must have
 
+- Documentation
 - Logging python processes
-- Python virtualenv support (and installing dependencies to the virtualenv)
-- Figure out how to package python files.
+- Installing elk python dependencies.
 - Tests, if I can figure out how best to write them.
 
 ### Good stuff
