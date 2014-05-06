@@ -1,0 +1,243 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Elk by obmarg</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Elk</h1>
+        <p>An elixir app for running google app engine pull queues.</p>
+
+        <p class="view"><a href="https://github.com/obmarg/elk">View the Project on GitHub <small>obmarg/elk</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/obmarg/elk/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/obmarg/elk/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/obmarg/elk">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="elk" class="anchor" href="#elk"><span class="octicon octicon-link"></span></a>Elk</h1>
+
+<p>An elixir application for running google app engine pull queues.</p>
+
+<p>The actual tasks are implemented by python workers on a WSGI interface.  This
+allows the workers to be implemented in a similar fashion to GAE push queues.</p>
+
+<h2>
+<a name="what-problem-does-it-solve" class="anchor" href="#what-problem-does-it-solve"><span class="octicon octicon-link"></span></a>What problem does it solve?</h2>
+
+<h3>
+<a name="the-problem" class="anchor" href="#the-problem"><span class="octicon octicon-link"></span></a>The Problem</h3>
+
+<p>When building a python application on google app engine, you are somewhat
+limited in the libraries and services you can use directly.</p>
+
+<p>It's possible to work around this using HTTPS and the urlfetch service to make
+requests to remote machines, but:</p>
+
+<ul>
+<li>This isn't really suitable for long running requests, due to app engines
+deadlines.</li>
+<li>This brings with it extra security concerns (setting up and managing HTTPS
+and authentication between the various endpoints etc.).</li>
+<li>The urlfetch service is not always reliable.</li>
+</ul><h3>
+<a name="a-possible-solution" class="anchor" href="#a-possible-solution"><span class="octicon octicon-link"></span></a>A Possible Solution</h3>
+
+<p>The first problem could be solved by building a queue external to app engine
+that deals with tasks as they come in.</p>
+
+<p>However, we could just use app engine pull queues to save us some of that work.
+This also reduces the issue of security, as you don't have to expose any ports
+on your external services.  App Engine just needs to feed tasks into the pull
+queue, and the external service just needs to process them from the pull queue.</p>
+
+<p>We may still need to deal with authentication when sending results back into
+app engine, but this should be easier than setting it up at both ends.</p>
+
+<h3>
+<a name="how-does-elk-help" class="anchor" href="#how-does-elk-help"><span class="octicon octicon-link"></span></a>How does Elk help?</h3>
+
+<p>Elk aims to provide a simple server that can be deployed to one or many
+machines, and will process tasks on a task queue.</p>
+
+<p>It wouldn't be too hard to write a simple worker in python in a few lines of
+code, but Elk aims to cut down on the need for boilerplate;  Allowing
+developers to worry about implementing the task itself, not managing the task
+queue.</p>
+
+<p>It also tries to cover any edge cases that a naive worker implementation might
+miss, and allows tasks to be written in a similar manner to appengine push
+queues - as routes in a web application.</p>
+
+<h4>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h4>
+
+<ul>
+<li>Handles OAuth authentication.</li>
+<li>Handles task retries.</li>
+<li>Ensures release/delete of task leases.</li>
+<li>Exposes tasks as routes in webapp.</li>
+<li>Batches requests for leases in quiet periods</li>
+</ul><h2>
+<a name="configuration" class="anchor" href="#configuration"><span class="octicon octicon-link"></span></a>Configuration</h2>
+
+<p>Elk is currently configured through environment variables:</p>
+
+<p>Required Variables:</p>
+
+<ul>
+<li>
+<code>ELK_PROJECT</code> - The app engine project to read queues from.</li>
+<li>
+<code>ELK_TASK_QUEUE</code> - The name of the pull queue to read from.</li>
+<li>
+<code>ELK_CLIENT_ID</code> - The client ID to read from the pull queue with.</li>
+<li>
+<code>ELK_KEYFILE</code> - Path to our clients private key file.</li>
+<li>
+<code>ELK_APP_PACKAGE</code> - The name of the python package to load the WSGI app from.</li>
+<li>
+<code>ELK_APP_NAME</code> - The name of the WSGI app variable in ELK_APP_PACKAGE.</li>
+<li>
+<code>ELK_VIRTUAL_ENV</code> - The path to the root of the virtualenv to use.</li>
+</ul><p>Optional Variables:</p>
+
+<ul>
+<li>
+<code>ELK_MAX_RETRIES</code> - The maximum number of retries for each task.</li>
+</ul><h2>
+<a name="instructions" class="anchor" href="#instructions"><span class="octicon octicon-link"></span></a>Instructions</h2>
+
+<p>Elk uses WSGI to run python tasks.  This means that we can expose tasks as
+"routes" in a web application, similar to how appengine push queue tasks are
+defined.</p>
+
+<p>There is an example application in the <code>example</code> folder that contains a python
+file and a shell script for setting up environment variables.  This would be a
+good place to start for developing a python task application.</p>
+
+<h4>
+<a name="configuring-elk" class="anchor" href="#configuring-elk"><span class="octicon octicon-link"></span></a>Configuring Elk</h4>
+
+<p>Since elk is configured through environment variables, a configuration shell
+script is the recommended way to configure an Elk deployment.  Ideally this
+script should setup all the environment variables correctly, then start Elk
+itself.  <code>example/env.sh</code> makes a good starting point for this.</p>
+
+<h4>
+<a name="installing-elk-python-dependencies" class="anchor" href="#installing-elk-python-dependencies"><span class="octicon octicon-link"></span></a>Installing Elk Python Dependencies.</h4>
+
+<p>Elk comes with most of it's dependencies.  However, some dependencies need
+compiled, and are not suitable for distribution with Elk.  These will need to
+be installed manually, using <code>pip</code> or another package manager:</p>
+
+<ul>
+<li>PyOpenSSL (On debian, this will require libffi-dev &amp; python-dev to compile)</li>
+</ul><h4>
+<a name="running-elk" class="anchor" href="#running-elk"><span class="octicon octicon-link"></span></a>Running Elk</h4>
+
+<p>These are the initial instructions for running elk.  Currently this involves
+downloading and building from source. At some point I hope to release packages
+but I've not figured out how to do that yet.</p>
+
+<h5>
+<a name="erlang-setup" class="anchor" href="#erlang-setup"><span class="octicon octicon-link"></span></a>Erlang Setup</h5>
+
+<p>Elk depends on erlang, which will need to be installed on the systems it is
+to run on.
+<a href="https://www.erlang-solutions.com/downloads/download-erlang-otp">Instructions can be found here</a>.</p>
+
+<h5>
+<a name="elixir-setup" class="anchor" href="#elixir-setup"><span class="octicon octicon-link"></span></a>Elixir Setup</h5>
+
+<p>Elk is written in Elixir (0.12.5) which will need to be installed.
+<a href="http://elixir-lang.org/getting_started/1.html">Instructions can be found here</a></p>
+
+<h5>
+<a name="other-requirements" class="anchor" href="#other-requirements"><span class="octicon octicon-link"></span></a>Other Requirements</h5>
+
+<p>Elk requires a recent version of pip to be installed in order to install it's
+python dependencies.</p>
+
+<h5>
+<a name="building-elk" class="anchor" href="#building-elk"><span class="octicon octicon-link"></span></a>Building Elk</h5>
+
+<p>From within the elk directory:</p>
+
+<pre lang="shell"><code>$ mix deps.get
+$ mix deps.compile
+$ mix compile
+$ mix deps.python
+</code></pre>
+
+<h5>
+<a name="running-elk-1" class="anchor" href="#running-elk-1"><span class="octicon octicon-link"></span></a>Running Elk</h5>
+
+<p>The recommended way to run applications in Elk is using a virtualenv.  This
+virtualenv should have all the applications dependencies, and the application
+itself installed within.  Applications with setup.py could be installed by
+running <code>setup.py install</code> or <code>setup.py develop</code> within the virtualenv.  For
+example:</p>
+
+<pre lang="shell"><code>$ pip install virtualenv
+$ virtualenv venv
+$ venv/bin/pip install PyOpenSSL
+$ venv/bin/python setup.py
+</code></pre>
+
+<p>Once the virtualenv has been setup, elk should be configured using environment
+variables.  The recommended way to do this is to take <code>examples/env.sh</code>, copy
+it to the root of the source tree, and customise it with your settings. Don't
+forget to configure <code>ELK_VIRTUAL_ENV</code> to the root path of the virtual env you
+created.</p>
+
+<p>Elk can then be run in the console like so:</p>
+
+<pre lang="shell"><code>$ . ~/env.sh
+$ iex -S mix
+</code></pre>
+
+<p>This command should be run in the root of the elk source tree.</p>
+
+<h4>
+<a name="sending-tasks-to-elk" class="anchor" href="#sending-tasks-to-elk"><span class="octicon octicon-link"></span></a>Sending Tasks To Elk</h4>
+
+<p>The following code should add a task to a "pulltest" queue on app engine.  If
+used with the example application this would run it's root task, which simply
+prints to the logs.</p>
+
+<div class="highlight highlight-python"><pre><span class="c"># The url is required to allow Elk to route to the correct task.</span>
+<span class="c"># In this case we're just sending to the root URL.</span>
+<span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s">'url'</span><span class="p">:</span> <span class="s">'/'</span><span class="p">}</span>
+
+<span class="c"># We should also send in a payload - this is the data that will actually be</span>
+<span class="c"># sent in to the task routes themselves.</span>
+<span class="n">payload</span><span class="p">[</span><span class="s">'payload'</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="n">q</span> <span class="o">=</span> <span class="n">taskqueue</span><span class="o">.</span><span class="n">Queue</span><span class="p">(</span><span class="s">"pulltest"</span><span class="p">)</span>
+<span class="n">q</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="n">taskqueue</span><span class="o">.</span><span class="n">Task</span><span class="p">(</span><span class="n">payload</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s">'PULL'</span><span class="p">)])</span>
+</pre></div>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/obmarg">obmarg</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
