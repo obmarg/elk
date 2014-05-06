@@ -5,23 +5,74 @@ An elixir application for running google app engine pull queues.
 The actual tasks are implemented by python workers on a WSGI interface.  This
 allows the workers to be implemented in a similar fashion to GAE push queues.
 
+## What problem does it solve?
+
+### The Problem
+
+When building a python application on google app engine, you are somewhat
+limited in the libraries and services you can use directly.
+
+It's possible to work around this using HTTPS and the urlfetch service to make
+requests to remote machines, but:
+
+* This isn't really suitable for long running requests, due to app engines
+  deadlines.
+* This brings with it extra security concerns (setting up and managing HTTPS
+  and authentication between the various endpoints etc.).
+* The urlfetch service is not always reliable.
+
+### A Possible Solution
+
+The first problem could be solved by building a queue external to app engine
+that deals with tasks as they come in.
+
+However, we could just use app engine pull queues to save us some of that work.
+This also reduces the issue of security, as you don't have to expose any ports
+on your external services.  App Engine just needs to feed tasks into the pull
+queue, and the external service just needs to process them from the pull queue.
+
+We may still need to deal with authentication when sending results back into
+app engine, but this should be easier than setting it up at both ends.
+
+### How does Elk help?
+
+Elk aims to provide a simple server that can be deployed to one or many
+machines, and will process tasks on a task queue.
+
+It wouldn't be too hard to write a simple worker in python in a few lines of
+code, but Elk aims to cut down on the need for boilerplate;  Allowing
+developers to worry about implementing the task itself, not managing the task
+queue.
+
+It also tries to cover any edge cases that a naive worker implementation might
+miss, and allows tasks to be written in a similar manner to appengine push
+queues - as routes in a web application.
+
+#### Features
+
+* Handles OAuth authentication.
+* Handles task retries.
+* Ensures release/delete of task leases.
+* Exposes tasks as routes in webapp.
+* Batches requests for leases in quiet periods
+
 ## Configuration
 
 Elk is currently configured through environment variables:
 
 Required Variables:
 
-* ELK_PROJECT - The app engine project to read queues from.
-* ELK_TASK_QUEUE - The name of the pull queue to read from.
-* ELK_CLIENT_ID - The client ID to read from the pull queue with.
-* ELK_KEYFILE - Path to our clients private key file.
-* ELK_APP_PACKAGE - The name of the python package to load the WSGI app from.
-* ELK_APP_NAME - The name of the WSGI app variable in ELK_APP_PACKAGE.
-* ELK_VIRTUAL_ENV - The path to the root of the virtualenv to use.
+* `ELK_PROJECT` - The app engine project to read queues from.
+* `ELK_TASK_QUEUE` - The name of the pull queue to read from.
+* `ELK_CLIENT_ID` - The client ID to read from the pull queue with.
+* `ELK_KEYFILE` - Path to our clients private key file.
+* `ELK_APP_PACKAGE` - The name of the python package to load the WSGI app from.
+* `ELK_APP_NAME` - The name of the WSGI app variable in ELK_APP_PACKAGE.
+* `ELK_VIRTUAL_ENV` - The path to the root of the virtualenv to use.
 
 Optional Variables:
 
-* ELK_MAX_RETRIES - The maximum number of retries for each task.
+* `ELK_MAX_RETRIES` - The maximum number of retries for each task.
 
 ## Instructions
 
@@ -81,7 +132,7 @@ $ mix compile
 $ mix deps.python
 ```
 
-###### Running Elk
+##### Running Elk
 
 The recommended way to run applications in Elk is using a virtualenv.  This
 virtualenv should have all the applications dependencies, and the application
@@ -104,7 +155,7 @@ created.
 
 Elk can then be run in the console like so:
 
-```script
+```shell
 $ . ~/env.sh
 $ iex -S mix
 ```
