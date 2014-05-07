@@ -18,6 +18,7 @@ defmodule Elk do
     keyfile = Elk.Config.get_str(:keyfile) 
     unless File.exists?(keyfile) do
       IO.puts "#{keyfile} does not exist"
+      exit(:config_error)
     end
 
     task_queue = Elk.Config.get_str(:task_queue)
