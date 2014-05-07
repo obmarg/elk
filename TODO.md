@@ -1,5 +1,6 @@
 ### Must have
 
+- Support for doing stuff under dev_appserver?
 - Release & deployment instructions.
 - Logging python processes
 - Tests, if I can figure out how best to write them.
