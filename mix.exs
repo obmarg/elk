@@ -25,6 +25,10 @@ defmodule Elk.Mixfile do
     [ {:erlport, github: "hdima/erlport"},
       {:amrita, "~>0.2", github: "josephwilk/amrita"}, 
       {:httpotion, github: "myfreeweb/httpotion" }, 
+      # ibrowse is an httpotion dependency.  It's only here to work around a
+      # bug building the version of ibrowse that httpotion currently pulls in
+      # by default.
+      {:ibrowse, github: "cmullaparthi/ibrowse", ref: "5bae7308a749f2dc801347c27f56dc1a21996aea", override: true},
       {:json, github: "cblage/elixir-json"},
       {:exlager, github: "khia/exlager"},
       {:exrm, github: "bitwalker/exrm"}, 
