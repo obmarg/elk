@@ -92,6 +92,8 @@ queues - as routes in a web application.</p>
 <li>Ensures release/delete of task leases.</li>
 <li>Exposes tasks as routes in webapp.</li>
 <li>Batches requests for leases in quiet periods</li>
+<li>Decouples workers from task queue, they can be debugged as a web-app
+normally.</li>
 </ul><h2>
 <a name="configuration" class="anchor" href="#configuration"><span class="octicon octicon-link"></span></a>Configuration</h2>
 
@@ -120,23 +122,89 @@ queues - as routes in a web application.</p>
 <li>
 <code>ELK_MAX_RETRIES</code> - The maximum number of retries for each task.</li>
 </ul><h2>
-<a name="instructions" class="anchor" href="#instructions"><span class="octicon octicon-link"></span></a>Instructions</h2>
+<a name="using-elk" class="anchor" href="#using-elk"><span class="octicon octicon-link"></span></a>Using Elk</h2>
 
 <p>Elk uses WSGI to run python tasks.  This means that we can expose tasks as
 "routes" in a web application, similar to how appengine push queue tasks are
 defined.</p>
 
-<p>There is an example application in the <code>example</code> folder that contains a python
-file and a shell script for setting up environment variables.  This would be a
-good place to start for developing a python task application.</p>
+<p>There are 2 example applications in the <code>example</code> folder:</p>
 
-<h4>
+<ul>
+<li>The <code>docker</code> example contains a python application and a Dockerfile for
+building a docker image for the application.  This is the recommended method
+for deploying Elk at the moment, as it avoids the need for compiling Elk.</li>
+<li>The <code>basic</code> example contains a python application and a shell script for
+setting up environment variables.  This would be a good place to start for
+developing python task application.</li>
+</ul><h4>
 <a name="configuring-elk" class="anchor" href="#configuring-elk"><span class="octicon octicon-link"></span></a>Configuring Elk</h4>
 
-<p>Since elk is configured through environment variables, a configuration shell
-script is the recommended way to configure an Elk deployment.  Ideally this
-script should setup all the environment variables correctly, then start Elk
-itself.  <code>example/env.sh</code> makes a good starting point for this.</p>
+<p>Elk is configured through environment variables.  Using the recommended docker
+deployment, these can be configured in the Dockerfile using the <code>ENV</code> command.
+An example of such a Dockerfile can be found in <code>example/docker/Dockerfile</code>.</p>
+
+<p>Alternatively, an env.sh script can be used. Ideally this script should setup
+all the environment variables correctly, then start Elk itself.
+<code>example/basic/env.sh</code> makes a good starting point for this.</p>
+
+<h4>
+<a name="running-elk" class="anchor" href="#running-elk"><span class="octicon octicon-link"></span></a>Running Elk</h4>
+
+<h5>
+<a name="using-docker-recommended" class="anchor" href="#using-docker-recommended"><span class="octicon octicon-link"></span></a>Using Docker (recommended)</h5>
+
+<p>Elk provides a base Dockerfile in <code>docker/</code>.  You can create a Dockerfile for
+your application using this as a Base.  There is an example of this in the
+<code>examples</code> folder.  You should just need to set the <code>CMD</code> of your docker image
+to <code>elk console</code> .  This should allow you to run Elk using <code>docker run
+&lt;image-name&gt;</code></p>
+
+<h5>
+<a name="using-an-elk-release-currently-not-very-well-supported" class="anchor" href="#using-an-elk-release-currently-not-very-well-supported"><span class="octicon octicon-link"></span></a>Using an Elk Release (currently not very well supported)</h5>
+
+<p>If you are using an Elk release, then you should run <code>elk console</code> with the
+appropriate environment variables set.  You must ensure that PyOpenSSL is
+included in the release, or otherwise accessible to Elk.</p>
+
+<h5>
+<a name="running-elk-from-repository" class="anchor" href="#running-elk-from-repository"><span class="octicon octicon-link"></span></a>Running Elk from Repository</h5>
+
+<p>Otherwise, running <code>iex -S mix</code> from within the Elk repository should do the
+trick.  You will have to build Elk before doing this, by following the
+instructions below.  More details on running Elk manually can be found under
+"Running Elk Manually" below.</p>
+
+<h4>
+<a name="sending-tasks-to-elk" class="anchor" href="#sending-tasks-to-elk"><span class="octicon octicon-link"></span></a>Sending Tasks To Elk</h4>
+
+<p>The following code should add a task to a "pulltest" queue on app engine.  If
+used with the example application this would run it's root task, which simply
+prints to the logs.</p>
+
+<div class="highlight highlight-python"><pre><span class="c"># The url is required to allow Elk to route to the correct task.</span>
+<span class="c"># In this case we're just sending to the root URL.</span>
+<span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s">'url'</span><span class="p">:</span> <span class="s">'/'</span><span class="p">}</span>
+
+<span class="c"># We should also send in a payload - this is the data that will actually be</span>
+<span class="c"># sent in to the task routes themselves.</span>
+<span class="n">payload</span><span class="p">[</span><span class="s">'payload'</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="n">q</span> <span class="o">=</span> <span class="n">taskqueue</span><span class="o">.</span><span class="n">Queue</span><span class="p">(</span><span class="s">"pulltest"</span><span class="p">)</span>
+<span class="n">q</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="n">taskqueue</span><span class="o">.</span><span class="n">Task</span><span class="p">(</span><span class="n">payload</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s">'PULL'</span><span class="p">)])</span>
+</pre></div>
+
+<h4>
+<a name="developing-elk-workers" class="anchor" href="#developing-elk-workers"><span class="octicon octicon-link"></span></a>Developing Elk Workers</h4>
+
+<p>Since Elk interfaces with it's workers using WSGI, they can be developed and
+tested as if they were a website - you can make use of the development servers
+and interactive debuggers present in most python web-frameworks.</p>
+
+<p>TODO: Add more details</p>
+
+<h2>
+<a name="building-elk" class="anchor" href="#building-elk"><span class="octicon octicon-link"></span></a>Building Elk</h2>
 
 <h4>
 <a name="installing-elk-python-dependencies" class="anchor" href="#installing-elk-python-dependencies"><span class="octicon octicon-link"></span></a>Installing Elk Python Dependencies.</h4>
@@ -147,25 +215,24 @@ be installed manually, using <code>pip</code> or another package manager:</p>
 
 <ul>
 <li>PyOpenSSL (On debian, this will require libffi-dev &amp; python-dev to compile)</li>
-</ul><h4>
-<a name="running-elk" class="anchor" href="#running-elk"><span class="octicon octicon-link"></span></a>Running Elk</h4>
-
-<p>These are the initial instructions for running elk.  Currently this involves
-downloading and building from source. At some point I hope to release packages
-but I've not figured out how to do that yet.</p>
-
-<h5>
-<a name="erlang-setup" class="anchor" href="#erlang-setup"><span class="octicon octicon-link"></span></a>Erlang Setup</h5>
-
-<p>Elk depends on erlang, which will need to be installed on the systems it is
-to run on.
-<a href="https://www.erlang-solutions.com/downloads/download-erlang-otp">Instructions can be found here</a>.</p>
+</ul><p>It's fine to install this globally, or in the virtualenv Elk will be using.</p>
 
 <h5>
 <a name="elixir-setup" class="anchor" href="#elixir-setup"><span class="octicon octicon-link"></span></a>Elixir Setup</h5>
 
-<p>Elk is written in Elixir (0.12.5) which will need to be installed.
-<a href="http://elixir-lang.org/getting_started/1.html">Instructions can be found here</a></p>
+<p>Elk is written in Elixir (0.12.5) which will need to be installed.</p>
+
+<p>For Mac OS, this can be done with</p>
+
+<pre><code>homebrew install elixir
+</code></pre>
+
+<p>Which will install Erlang, and Elixir. Otherwise <a href="http://elixir-lang.org/getting_started/1.html">Instructions can be found
+here</a></p>
+
+<p>Elixir depends on erlang, which will need to be installed on the systems it is
+to run on. <a href="https://www.erlang-solutions.com/downloads/download-erlang-otp">Instructions can be found
+here</a>.</p>
 
 <h5>
 <a name="other-requirements" class="anchor" href="#other-requirements"><span class="octicon octicon-link"></span></a>Other Requirements</h5>
@@ -174,7 +241,7 @@ to run on.
 python dependencies.</p>
 
 <h5>
-<a name="building-elk" class="anchor" href="#building-elk"><span class="octicon octicon-link"></span></a>Building Elk</h5>
+<a name="building-elk-1" class="anchor" href="#building-elk-1"><span class="octicon octicon-link"></span></a>Building Elk</h5>
 
 <p>From within the elk directory:</p>
 
@@ -185,13 +252,13 @@ $ mix deps.python
 </code></pre>
 
 <h5>
-<a name="running-elk-1" class="anchor" href="#running-elk-1"><span class="octicon octicon-link"></span></a>Running Elk</h5>
+<a name="running-elk-manually" class="anchor" href="#running-elk-manually"><span class="octicon octicon-link"></span></a>Running Elk Manually</h5>
 
-<p>The recommended way to run applications in Elk is using a virtualenv.  This
-virtualenv should have all the applications dependencies, and the application
-itself installed within.  Applications with setup.py could be installed by
-running <code>setup.py install</code> or <code>setup.py develop</code> within the virtualenv.  For
-example:</p>
+<p>The recommended way to develop applications for Elk is using a virtualenv.
+This virtualenv should have all the applications dependencies, and the
+application itself installed within.  Applications with setup.py could be
+installed by running <code>setup.py install</code> or <code>setup.py develop</code> within the
+virtualenv.  For example:</p>
 
 <pre lang="shell"><code>$ pip install virtualenv
 $ virtualenv venv
@@ -212,25 +279,6 @@ $ iex -S mix
 </code></pre>
 
 <p>This command should be run in the root of the elk source tree.</p>
-
-<h4>
-<a name="sending-tasks-to-elk" class="anchor" href="#sending-tasks-to-elk"><span class="octicon octicon-link"></span></a>Sending Tasks To Elk</h4>
-
-<p>The following code should add a task to a "pulltest" queue on app engine.  If
-used with the example application this would run it's root task, which simply
-prints to the logs.</p>
-
-<div class="highlight highlight-python"><pre><span class="c"># The url is required to allow Elk to route to the correct task.</span>
-<span class="c"># In this case we're just sending to the root URL.</span>
-<span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s">'url'</span><span class="p">:</span> <span class="s">'/'</span><span class="p">}</span>
-
-<span class="c"># We should also send in a payload - this is the data that will actually be</span>
-<span class="c"># sent in to the task routes themselves.</span>
-<span class="n">payload</span><span class="p">[</span><span class="s">'payload'</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-
-<span class="n">q</span> <span class="o">=</span> <span class="n">taskqueue</span><span class="o">.</span><span class="n">Queue</span><span class="p">(</span><span class="s">"pulltest"</span><span class="p">)</span>
-<span class="n">q</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="n">taskqueue</span><span class="o">.</span><span class="n">Task</span><span class="p">(</span><span class="n">payload</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s">'PULL'</span><span class="p">)])</span>
-</pre></div>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/obmarg">obmarg</a></p>
