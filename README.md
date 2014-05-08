@@ -103,13 +103,21 @@ all the environment variables correctly, then start Elk itself.
 
 #### Running Elk
 
-Assuming you are using the Docker, you should just need to set the `CMD` of
-your docker image to `elk console` .  This should allow you to run
-Elk using `docker run <image-name>`
+##### Using Docker (recommended)
+
+Elk provides a base Dockerfile in `docker/`.  You can create a Dockerfile for
+your application using this as a Base.  There is an example of this in the
+`examples` folder.  You should just need to set the `CMD` of your docker image
+to `elk console` .  This should allow you to run Elk using `docker run
+<image-name>`
+
+##### Using an Elk Release (currently not very well supported)
 
 If you are using an Elk release, then you should run `elk console` with the
 appropriate environment variables set.  You must ensure that PyOpenSSL is
 included in the release, or otherwise accessible to Elk.
+
+##### Running Elk from Repository
 
 Otherwise, running `iex -S mix` from within the Elk repository should do the
 trick.  You will have to build Elk before doing this, by following the
