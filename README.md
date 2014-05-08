@@ -91,6 +91,17 @@ There are 2 example applications in the `example` folder:
   setting up environment variables.  This would be a good place to start for
   developing python task application.
 
+#### App Engine Setup
+
+You will need to setup a pull queue on google app engine, using the queue.yaml
+file.  [Instructions on configuring a queue are here](https://developers.google.com/appengine/docs/python/config/queue#Python_Defining_pull_queues).
+
+You will also need to setup a google service account for Elk to use to read the
+task queue REST API.  This can be done under "APIs and Auth" - "Credentials" in [the google cloud console](https://console.developers.google.com/project).  You will need the email address of the user, and the users secret key to configure elk.
+
+Be sure to list this service account under the `user_email` section for your
+queue in your queue.yaml file.
+
 #### Configuring Elk
 
 Elk is configured through environment variables.  Using the recommended docker
