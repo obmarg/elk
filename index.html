@@ -60,13 +60,16 @@ and authentication between the various endpoints etc.).</li>
 <p>The first problem could be solved by building a queue external to app engine
 that deals with tasks as they come in.</p>
 
-<p>However, we could just use app engine pull queues to save us some of that work.
-This also reduces the issue of security, as you don't have to expose any ports
-on your external services.  App Engine just needs to feed tasks into the pull
-queue, and the external service just needs to process them from the pull queue.</p>
+<p>However, using app engine pull queues can save some of that work. It can also
+ease some of the security pains, as you don't have to expose any ports on your
+external services.  App Engine just needs to feed tasks into the pull queue,
+and the external service just needs to process them from the pull queue.</p>
 
-<p>We may still need to deal with authentication when sending results back into
-app engine, but this should be easier than setting it up at both ends.</p>
+<p>App Engine provides a REST API for pull queues with OAuth authentication over
+HTTPS, which saves you implementing something similar yourself.</p>
+
+<p>You may still need to implement some authentication when sending results back
+into app engine, but this should be easier than setting it up at both ends.</p>
 
 <h3>
 <a name="how-does-elk-help" class="anchor" href="#how-does-elk-help"><span class="octicon octicon-link"></span></a>How does Elk help?</h3>
