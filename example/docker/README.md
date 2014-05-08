@@ -15,9 +15,16 @@ Configuring Service Accounts
 It should be possible to use the `ENV` and `ADD` Dockerfile commands to include
 the `ELK_CLIENT_ID` and private key of your service account in a docker image.
 
-However, it may be a better idea to leave these out of your Dockerfile, and
-just build a generic image.  These variables can then be configured on each
-host individually, using command line arguments to `docker run`.
+However, keeping the private key for the service account in a shared repository
+or docker image is not a great idea.  Ideally we would configure each worker
+with a different service account, and not store those credentials anywhere
+else.  Then we can just revoke & create new service accounts as needed.
+
+With this in mind, it may be a better idea to leave the private key and service
+account configuraiton out of your Dockerfile, and just build a generic image.
+
+These variables can then be configured on each host individually, using command
+line arguments to `docker run`.
 
 The `-v=[]` option described in [Mount a Host Directory as a Container Volume](http://docs.docker.io/use/working_with_volumes/)
 could be used to supply the private key file.  The `-e`
