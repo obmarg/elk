@@ -138,6 +138,18 @@ for deploying Elk at the moment, as it avoids the need for compiling Elk.</li>
 setting up environment variables.  This would be a good place to start for
 developing python task application.</li>
 </ul><h4>
+<a name="app-engine-setup" class="anchor" href="#app-engine-setup"><span class="octicon octicon-link"></span></a>App Engine Setup</h4>
+
+<p>You will need to setup a pull queue on google app engine, using the queue.yaml
+file.  <a href="https://developers.google.com/appengine/docs/python/config/queue#Python_Defining_pull_queues">Instructions on configuring a queue are here</a>.</p>
+
+<p>You will also need to setup a google service account for Elk to use to read the
+task queue REST API.  This can be done under "APIs and Auth" - "Credentials" in <a href="https://console.developers.google.com/project">the google cloud console</a>.  You will need the email address of the user, and the users secret key to configure elk.</p>
+
+<p>Be sure to list this service account under the <code>user_email</code> section for your
+queue in your queue.yaml file.</p>
+
+<h4>
 <a name="configuring-elk" class="anchor" href="#configuring-elk"><span class="octicon octicon-link"></span></a>Configuring Elk</h4>
 
 <p>Elk is configured through environment variables.  Using the recommended docker
