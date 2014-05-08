@@ -1,4 +1,4 @@
-FROM obmarg/elixir
+FROM obmarg/docker-elixir
 MAINTAINER Graeme Coupar "http://github.com/obmarg"
 
 # Install python & pip
