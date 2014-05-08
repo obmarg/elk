@@ -31,10 +31,13 @@
         <h1>
 <a name="elk" class="anchor" href="#elk"><span class="octicon octicon-link"></span></a>Elk</h1>
 
-<p>An elixir application for running google app engine pull queues.</p>
+<p>Elk allows google app engine applications to easily run background tasks on
+external servers.  It is written in <a href="http://elixir-lang.org/">Elixir</a>, and uses
+<a href="https://developers.google.com/appengine/docs/python/taskqueue/overview-pull#Python_Pull_queue_overview">google app engine pull queues</a>.</p>
 
-<p>The actual tasks are implemented by python workers on a WSGI interface.  This
-allows the workers to be implemented in a similar fashion to GAE push queues.</p>
+<p>The tasks themselves can be implemented in python.  Elk communicates to them
+using WSGI, so they can be written as normal routes in a web application using
+one of the many python web-frameworks.  Just like normal app engine tasks.</p>
 
 <h2>
 <a name="what-problem-does-it-solve" class="anchor" href="#what-problem-does-it-solve"><span class="octicon octicon-link"></span></a>What problem does it solve?</h2>
