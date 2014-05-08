@@ -1,8 +1,7 @@
 docker-logstash-http-kibana
 ======
 
-This repository contains a Dockerfile for creating the
-obmarg/elk image.  
+This folder contains a Dockerfile for creating the obmarg/elk image.  
 
 This docker contains a built version of
 [ELk](https://github.com/obmarg/gae-logstash-http).  It is intended to be used
