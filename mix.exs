@@ -14,7 +14,7 @@ defmodule Elk.Mixfile do
                       # These next ones are just to cover a bug in elixir 12.x
                       :kernel, :stdlib, :elixir,
                       # This next one may also be an elixir 12.x bug, not sure
-                      :erlport ],
+                      :erlport, :json ],
       mod: { Elk, [] } ]
   end
 
