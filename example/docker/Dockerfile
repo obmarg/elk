@@ -11,6 +11,9 @@ WORKDIR /elk-example
 ADD requirements.txt /elk-example/requirements.txt
 ADD tasks.py /elk-example/tasks.py
 
+# Copy tasks.py into the venv, so it's avaliable to Elk
+RUN cp /elk-example/tasks.py /venv/lib/python2.7/site-packages
+
 # Install our dependencies to the virtualenv
 RUN /venv/bin/pip install -r requirements.txt
 

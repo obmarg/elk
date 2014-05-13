@@ -54,11 +54,14 @@ Running
 
 Assuming the dockerfile has been built as `example`, the container can be run using
 
-    $ docker run example
+    $ docker run -t -i example
+
+Note the `-t -i` options, which are required since we're running the iex
+console version of Elk.
 
 Or if you wish to configure the security details on run:
 
-    $ docker run -e "ELK_CLIENT_ID=1234@developers.google.com" -e "ELK_KEYFILE=/mnt/shared/private.p12" -v=/home/ubuntu/key:/mnt/shared/:ro example
+    $ docker run -t -i -e "ELK_CLIENT_ID=1234@developers.google.com" -e "ELK_KEYFILE=/mnt/shared/private.p12" -v=/home/ubuntu/key:/mnt/shared/:ro example
 
 Where the key file is stored in `/home/ubuntu/key/private.p12` on the host, and
 in `1234@developers.google.com` is the email address of the service account.
