@@ -58,8 +58,7 @@ Assuming the dockerfile has been built as `example`, the container can be run us
 
 Or if you wish to configure the security details on run:
 
-    $ docker run example -e "ELK_CLIENT_ID=1234@developers.google.com" -e
-    "ELK_KEYFILE=/mnt/shared/private.p12" -v=/home/ubuntu/key:/mnt/shared/:ro
+    $ docker run -e "ELK_CLIENT_ID=1234@developers.google.com" -e "ELK_KEYFILE=/mnt/shared/private.p12" -v=/home/ubuntu/key:/mnt/shared/:ro example
 
 Where the key file is stored in `/home/ubuntu/key/private.p12` on the host, and
 in `1234@developers.google.com` is the email address of the service account.
