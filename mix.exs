@@ -12,7 +12,9 @@ defmodule Elk.Mixfile do
   def application do
     [ applications: [ :exlager, :httpotion,
                       # These next ones are just to cover a bug in elixir 12.x
-                      :kernel, :stdlib, :elixir],
+                      :kernel, :stdlib, :elixir,
+                      # This next one may also be an elixir 12.x bug, not sure
+                      :erlport ],
       mod: { Elk, [] } ]
   end
 
