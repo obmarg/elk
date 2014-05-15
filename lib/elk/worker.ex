@@ -72,7 +72,7 @@ defmodule Elk.Worker do
     app = Elk.Config.get_str(:app_name)
 
     {pid, _} = Process.spawn_monitor fn ->
-      IO.puts inspect Elk.WSGI.call_task(py_pid, package, app, task)
+      :ok = Elk.WSGI.call_task(py_pid, package, app, task)
     end
     pid
   end

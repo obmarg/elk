@@ -18,7 +18,9 @@ defmodule Elk.WSGI do
     Lager.info "Body: #{body}"
 
     unless status in 200..299 do
-      exit :task_failed
+      :task_failed
+    else
+      :ok
     end
 
     # TODO: Need some timeout stuff & tests.
