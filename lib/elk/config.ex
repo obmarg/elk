@@ -40,6 +40,7 @@ defmodule Elk.Config do
     var_name |> atom_to_env_var |> System.get_env
   end
 
+  @doc "Converts an atom to it's corresponding environment variable name"
   def atom_to_env_var(atom) do
     name = atom |> atom_to_binary |> String.upcase
 

@@ -1,5 +1,6 @@
 [ "amrita": {:git, "git://github.com/josephwilk/amrita.git", "846af31f4fc1e43f2c1777b894d5b80c15e3a273", []},
   "erlport": {:git, "git://github.com/hdima/erlport.git", "e7efadc22190aa51392cf89310c16ca6b2e4e4e8", []},
+  "ex_doc": {:git, "git://github.com/elixir-lang/ex_doc.git", "c14203bfca186f68ff178e5ada9af4f5fb37e205", [ref: "c14203bfca186f68ff178e5ada9af4f5fb37e205"]},
   "exactor": {:git, "git://github.com/sasa1977/exactor.git", "6d93cc137a38eab016cc3b4f40ec781ecf0b6844", [tag: "0.2.0"]},
   "exlager": {:git, "git://github.com/khia/exlager.git", "94087d1a1e6ecb70729d2bc3192e3fb6b8be86eb", []},
   "exrm": {:git, "git://github.com/bitwalker/exrm.git", "76608f48d643ee9b0573bcb113deefc310ea249d", []},

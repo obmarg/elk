@@ -34,6 +34,7 @@ defmodule Elk.Mixfile do
       {:json, github: "cblage/elixir-json"},
       {:exlager, github: "khia/exlager"},
       {:exrm, github: "bitwalker/exrm"}, 
+      {:ex_doc, github: "elixir-lang/ex_doc", ref: "c14203bfca186f68ff178e5ada9af4f5fb37e205"}
     ]
   end
 end

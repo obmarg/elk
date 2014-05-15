@@ -1,6 +1,6 @@
 defmodule Elk.FunctionSupervisor do
   @moduledoc """
-  A simple_for_one supervisor for supervising the running of a specific
+  A "simple for one" supervisor for supervising the running of a specific
   function (via Elk.FunctionTask)
 
   The intention is for other processes to add tasks to this supervisor by
