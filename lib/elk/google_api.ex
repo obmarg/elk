@@ -70,9 +70,13 @@ defmodule Elk.GoogleAPI do
   end
 
   def process_response_body(body) do
+    Lager.debug "Response from Google:"
+    Lager.debug body
     case JSON.decode(body) do
       {:ok, data} -> data
-      {:unexpected_end_of_buffer, _} -> body
+      {:unexpected_end_of_buffer, _} ->
+        Lager.debug "Response is not JSON."
+        body
       {error, _} ->
         Lager.warning "Could not process JSON response: #{error}"
         Lager.warning "Body: #{body}"
