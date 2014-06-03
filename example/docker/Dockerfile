@@ -17,7 +17,11 @@ RUN cp /elk-example/tasks.py /venv/lib/python2.7/site-packages
 # Install our dependencies to the virtualenv
 RUN /venv/bin/pip install -r requirements.txt
 
-CMD /elk/bin/elk console
+CMD /elk/bin/elk foreground
+
+# Uncomment the following if you wish to interact with Elk at the console 
+# manually.  This will require docker run to be passed -d -t
+#CMD /elk/bin/elk console
 
 ###
 # CONFIGURATION BEGINS HERE
