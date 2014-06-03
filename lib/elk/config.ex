@@ -36,10 +36,19 @@ defmodule Elk.Config do
     get_env(var_name) || default
   end
 
+  @doc "Checks verbosity and configures logging appropriately"
+  def check_log_level() do
+    level = get_str(:log_level, "info")
+            |> String.downcase
+            |> binary_to_atom
+    :lager.set_loglevel :lager_console_backend, level
+  end
+
   defp get_env(var_name) do
     var_name |> atom_to_env_var |> System.get_env
   end
 
+  @doc "Converts an atom to it's corresponding environment variable name"
   def atom_to_env_var(atom) do
     name = atom |> atom_to_binary |> String.upcase
 

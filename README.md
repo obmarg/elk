@@ -77,6 +77,9 @@ Required Variables:
 * `ELK_APP_PACKAGE` - The name of the python package to load the WSGI app from.
 * `ELK_APP_NAME` - The name of the WSGI app variable in ELK_APP_PACKAGE.
 * `ELK_VIRTUAL_ENV` - The path to the root of the virtualenv to use.
+* `ELK_LOG_LEVEL` - The level of logs to display in the console.  Defaults to
+  info.  See [ExLager](https://github.com/khia/exlager) for more details on the
+  options.
 
 Optional Variables:
 

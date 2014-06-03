@@ -54,3 +54,6 @@ ENV ELK_APP_NAME app
 # Optionally, we can define ELK_VIRTUAL_ENV as the path to the virtualenv to
 # use for running our application.
 ENV ELK_VIRTUAL_ENV /venv
+
+# ELK_LOG_LEVEL sets the level of logs to display.  By default this is info
+# ENV ELK_LOG_LEVEL='info'

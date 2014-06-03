@@ -1,7 +1,8 @@
 defmodule Elk.WSGI do
-  @moduledoc '''
+  @moduledoc """
   API around python processes
-  '''
+  """
+
   require Lager
 
   def call_task(py_worker, module_name, app_name, task) do

@@ -5,7 +5,8 @@ defmodule Elk.Mixfile do
     [ app: :elk,
       version: "0.0.1",
       elixir: "~> 0.12.5",
-      deps: deps ]
+      deps: deps,
+      elixirc_options: options(Mix.env) ]
   end
 
   # Configuration for the OTP application
@@ -34,6 +35,11 @@ defmodule Elk.Mixfile do
       {:json, github: "cblage/elixir-json"},
       {:exlager, github: "khia/exlager"},
       {:exrm, github: "bitwalker/exrm"}, 
+      {:ex_doc, github: "elixir-lang/ex_doc", ref: "c14203bfca186f68ff178e5ada9af4f5fb37e205"}
     ]
+  end
+
+  defp options(_env) do
+    [exlager_level: :debug, exlager_truncation_size: 8096]
   end
 end
