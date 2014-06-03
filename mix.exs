@@ -40,6 +40,6 @@ defmodule Elk.Mixfile do
   end
 
   defp options(_env) do
-    [exlager_level: :debug, exlager_truncation_size: 8096]
+    [exlager_level: :debug, exlager_truncation_size: 1048576]
   end
 end
