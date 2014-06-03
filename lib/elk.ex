@@ -12,6 +12,8 @@ defmodule Elk do
   # for more information on OTP Applications
   def start(_type, _args) do
 
+    Elk.Config.check_log_level
+
     # Check required config:
     Enum.map @required_config, &Elk.Config.check_var/1
 
