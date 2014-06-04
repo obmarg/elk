@@ -123,8 +123,8 @@ defimpl GoogleAPIReader, for: HashDict do
               |> JSON.decode!
 
     task_payload =
-      if payload["gzip"] do
-        Lager.debug "Decoding gzipped payload"
+      if payload["zipped"] do
+        Lager.debug "Decoding zipped payload"
         payload["payload"] |> :base64.decode |> :zlib.uncompress
       else
         # Re-JSONify the actual task payload so the WSGI layer can just pass it in.

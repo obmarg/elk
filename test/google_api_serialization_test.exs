@@ -12,7 +12,7 @@ defmodule GoogleAPIReaderTest do
                               retries: 1]
   end
 
-  test "reads gzipped data" do
+  test "reads zipped data" do
     data = [1, 2, 3]
            |> compress_data
            |> make_task_data
@@ -26,10 +26,10 @@ defmodule GoogleAPIReaderTest do
                               retries: 1]
   end
 
-  defp make_task_data(payload, gzip // true) do
+  defp make_task_data(payload, zipped // true) do
     json_data = HashDict.new(url: "/",
                              payload: payload,
-                             gzip: gzip)
+                             zipped: zipped)
                 |> JSON.encode!
 
     HashDict.new([{"id", 123},
