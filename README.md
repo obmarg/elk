@@ -63,6 +63,7 @@ queues - as routes in a web application.
 * Batches requests for leases in quiet periods
 * Decouples workers from task queue, they can be debugged as a web-app
   normally.
+* Encodes payload data to avoid app engine REST API bugs.
 
 ## Configuration
 
@@ -158,6 +159,13 @@ payload = {'url': '/'}
 # We should also send in a payload - this is the data that will actually be
 # sent in to the task routes themselves.
 payload['payload'] = {}
+
+# It is recommended to zip the payload to avoid app engine problems with
+# certain payloads.  To do this:
+from zlib import compress
+from base64 import b64encode
+payload['payload'] = b64encode(compress(json.dumps(payload['payload'])))
+payload['zipped'] = True
 
 q = taskqueue.Queue("pulltest")
 q.add([taskqueue.Task(payload=json.dumps(payload), method='PULL')])

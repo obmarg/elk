@@ -115,14 +115,21 @@ end
 
 defimpl GoogleAPIReader, for: HashDict do
   require Elk.Task
+  require Lager
 
   def parse_task(task) do
     payload = Dict.get(task, "payloadBase64")
               |> :base64.decode
               |> JSON.decode!
 
-    # Re-JSONify the actual task payload so the WSGI layer can just pass it in.
-    task_payload = JSON.encode!(Dict.get(payload, "payload"))
+    task_payload =
+      if payload["zipped"] do
+        Lager.debug "Decoding zipped payload"
+        payload["payload"] |> :base64.decode |> :zlib.uncompress
+      else
+        # Re-JSONify the actual task payload so the WSGI layer can just pass it in.
+        JSON.encode! payload["payload"]
+      end
 
     Elk.Task[id: Dict.get(task, "id"),
              url: Dict.get(payload, "url"),
