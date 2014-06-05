@@ -57,3 +57,6 @@ ENV ELK_VIRTUAL_ENV /venv
 
 # ELK_LOG_LEVEL sets the level of logs to display.  By default this is info
 # ENV ELK_LOG_LEVEL='info'
+
+# Optionally, you can override the number of python workers to spawn.
+# ENV ELK_NUM_WORKERS 4

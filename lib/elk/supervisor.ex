@@ -6,14 +6,18 @@ defmodule Elk.Supervisor do
   end
 
   def init([]) do
+    num_workers = Elk.Config.get_int(:num_workers, 4)
+
     children = [
       func_supervisor(:delete_sup, &Elk.GoogleAPI.delete_task/1),
       func_supervisor(:release_sup, &Elk.GoogleAPI.release_lease/1),
 
       worker(Elk.TokenHandler, []),
-      worker(Elk.Leaser, []),
+      worker(Elk.Leaser, [])
 
-      supervisor(Elk.WorkerSupervisor, [], id: 'worker-sup1')
+      | Enum.map(1..num_workers, &(supervisor(Elk.WorkerSupervisor,
+                                              [],
+                                              id: "worker-sup#{&1}")))
     ]
     supervise(children, strategy: :one_for_one)
   end

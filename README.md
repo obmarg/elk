@@ -77,14 +77,16 @@ Required Variables:
 * `ELK_KEYFILE` - Path to our clients private key file.
 * `ELK_APP_PACKAGE` - The name of the python package to load the WSGI app from.
 * `ELK_APP_NAME` - The name of the WSGI app variable in ELK_APP_PACKAGE.
-* `ELK_VIRTUAL_ENV` - The path to the root of the virtualenv to use.
-* `ELK_LOG_LEVEL` - The level of logs to display in the console.  Defaults to
-  info.  See [ExLager](https://github.com/khia/exlager) for more details on the
-  options.
 
 Optional Variables:
 
+* `ELK_VIRTUAL_ENV` - The path to the root of the virtualenv to use.
 * `ELK_MAX_RETRIES` - The maximum number of retries for each task.
+* `ELK_LOG_LEVEL` - The level of logs to display in the console.  Defaults to
+  info.  See [ExLager](https://github.com/khia/exlager) for more details on the
+  options.
+* `ELK_NUM_WORKERS` - The number of python workers to spawn.  This defaults to
+  4.
 
 ## Using Elk
 

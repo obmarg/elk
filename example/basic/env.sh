@@ -28,4 +28,7 @@ export ELK_APP_NAME=app
 #export ELK_VIRTUAL_ENV=~/.virtualenvs/elk-example/
 
 # ELK_LOG_LEVEL sets the level of logs to display.  By default this is info
-# ELK_LOG_LEVEL='info'
+# export ELK_LOG_LEVEL='info'
+
+# Optionally, you can override the number of python workers to spawn.
+# export ELK_NUM_WORKERS=4
