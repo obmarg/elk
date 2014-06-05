@@ -49,6 +49,9 @@ defmodule Elk.Leaser do
     {:reply, nil, Enum.uniq([pid | waiting]), @poll_time}
   end
 
+  @doc """
+  The timeout handler.  Attempts to lease tasks for any waiting workers.
+  """
   def handle_info(:timeout, waiting) do
     tasks = waiting
     |> length
@@ -56,7 +59,7 @@ defmodule Elk.Leaser do
     |> Enum.map(&process_task/1)
     |> Enum.filter(&(&1))
 
-    Lager.info "#{length(tasks)} tasks waiting"
+    Lager.info "#{length(tasks)} tasks leased"
 
     # If there's no tasks this will stick everything into waiting.
     {workers, waiting} = Enum.split(waiting, length(tasks))
@@ -73,6 +76,13 @@ defmodule Elk.Leaser do
   ##
   # Private Functions
   ##
+  @doc """
+  Preprocesses a leased task before it is sent to a worker.
+
+  Handles deleting tasks that have had too many retries.
+
+  Returns nil for tasks that are deleted, otherwise returns the task.
+  """
   defp process_task(task) do
     Lager.info "Processing task"
     max_retries = Elk.Config.get_int(:max_retries, @max_retries)
