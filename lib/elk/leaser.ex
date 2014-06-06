@@ -84,7 +84,7 @@ defmodule Elk.Leaser do
   Returns nil for tasks that are deleted, otherwise returns the task.
   """
   defp process_task(task) do
-    Lager.info "Processing task"
+    Lager.info "Processing task #{inspect task}"
     max_retries = Elk.Config.get_int(:max_retries, @max_retries)
     if task.retries < max_retries do
       task
