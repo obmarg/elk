@@ -31,6 +31,7 @@ defmodule Elk.Worker do
 
   def handle_cast({:task, task}, {py_pid, nil}) do
     Lager.info "Worker starting #{inspect task}"
+    Lager.info "Payload is #{byte_size task.payload} bytes long"
     pid = start_task(py_pid, task)
     {:noreply, {py_pid, {pid, task}}}
   end
@@ -72,7 +73,7 @@ defmodule Elk.Worker do
     app = Elk.Config.get_str(:app_name)
 
     {pid, _} = Process.spawn_monitor fn ->
-      IO.puts inspect Elk.WSGI.call_task(py_pid, package, app, task)
+      Elk.WSGI.call_task(py_pid, package, app, task)
     end
     pid
   end
