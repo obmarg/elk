@@ -1,6 +1,8 @@
 FROM obmarg/docker-elixir
 MAINTAINER Graeme Coupar "http://github.com/obmarg"
 
+RUN apt-get -y update --fix-missing
+
 # Install python & pip
 RUN apt-get install -y python
 RUN apt-get install -y python-setuptools
