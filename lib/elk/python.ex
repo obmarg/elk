@@ -8,7 +8,8 @@ defmodule Elk.Python do
   """
   def python_config do
     config = [{:python_path, [:code.priv_dir('elk'),
-                              :code.priv_dir('elk') ++ '/python_deps']}]
+                              :code.priv_dir('elk') ++ '/python_deps']},
+              {:buffer_size, 1024 * 1024 * 2}]
     case python_executable() do
       nil -> config
       exe -> Dict.put(config, :python, exe)
