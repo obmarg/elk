@@ -17,7 +17,7 @@ defmodule Elk.GoogleAPI do
 
   @doc "Leases n tasks from google"
   def lease_tasks(n_tasks) when n_tasks >= 1 do
-    Lager.info "Requesting #{n_tasks} leases"
+    Lager.debug "Requesting #{n_tasks} leases"
     query_string = URI.encode_query [{:leaseSecs, 500}, {:numTasks, n_tasks}]
 
     post("/lease?#{query_string}", "")

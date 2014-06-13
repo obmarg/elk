@@ -59,7 +59,13 @@ defmodule Elk.Leaser do
     |> Enum.map(&process_task/1)
     |> Enum.filter(&(&1))
 
-    Lager.info "#{length(tasks)} tasks leased"
+    num_leased = length(tasks)
+
+    if num_leased > 0 do
+      Lager.info "#{length(tasks)} tasks leased"
+    else
+      Lager.debug "#{length(tasks)} tasks leased"
+    end
 
     # If there's no tasks this will stick everything into waiting.
     {workers, waiting} = Enum.split(waiting, length(tasks))
